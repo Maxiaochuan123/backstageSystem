@@ -73,7 +73,11 @@
    methods:{
      onSubmit(){
       this.isLogin = true;
-       this.$refs['form'].validate((valid) => {
+
+      let unlockPwdStr = this.tool.encAse192(this.form.passWord, 'unlockPwd')
+          this.storage.sessionSet('unlockPwd', unlockPwdStr)
+
+      this.$refs['form'].validate((valid) => {
         if (valid) { 
           setTimeout(()=>{
             if(1 == 1) this.$router.push('/')
@@ -83,7 +87,7 @@
           return false;
         }
       })
-     }
+    }
    }
  }
 </script>
@@ -94,34 +98,7 @@
   background-color: #F6F7F9;
   position: relative;
 
-  .bottomBanner{
-      width: 500px;
-      height: 100vh;
-      position: absolute;
-      // background-color: #71a0fb;
-      // overflow: hidden;
-    img{
-      width: 550px;
-      height: 180px;
-      position: absolute;
-    }
-    img:nth-child(1){
-      top: 174px;
-      left: 60px;
-    }
-    img:nth-child(2){
-      top: 380px;
-      left: 60px;
-    }
-    img:nth-child(3){
-      bottom: 170px;
-      left: 60px;
-    }
-  }
-
   .loginBox{
-    z-index: 2;
-
     width: 1200px;
     height: 600px;
     border-radius: 4px;
@@ -139,7 +116,6 @@
       .content{
         width: 100%;
         height: 100%;
-        // background-color: rgb(8, 69, 116);
 
         .logoBox{
           width: 100%;
@@ -175,7 +151,11 @@
 
           .el-input-group__prepend{
             background-color: #fff;
-            padding: 10px;
+            padding: 8px;
+
+            .icon-suoping{
+              font-size: 18px;
+            }
           }
 
           .submit{
@@ -190,12 +170,8 @@
               padding-left: 10px;
             }
             .el-button--primary{
-              // display: block;
-              // margin: 0 auto;
               width: 100px;
               
-
-              // background-color: #4886FF;
               border: none;
               border-radius: 2px;
               box-shadow: 0px 0px 4px 0px #4886FF;
@@ -213,7 +189,6 @@
     .banner{
       width: 800px;
       height: 100%;
-      // background-color: #4A74A3;
 
       .wh_content{
         height: 100%;
