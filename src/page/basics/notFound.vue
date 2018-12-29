@@ -2,7 +2,7 @@
   <div class="notFound">
     <el-container>
       <div class="imgBox">
-        <img src="../assets/images/404.gif" alt>
+        <img :src="abnormal_404" alt>
         <div class="goHome" onselectstart="return false" @click="goHome">go Home</div>
       </div>
     </el-container>
@@ -13,16 +13,18 @@
 export default {
   name: "notFound",
   data() {
-    return {};
+    return {
+      abnormal_404: this.imagesPath.abnormal[0]
+    };
   },
   methods: {
-    goHome(){
-        this.$router.push('/')
+    goHome() {
+      this.$router.go(-1);
     }
   }
 };
 </script>
-<style lang="less" scoped>
+<style lang="scss" scoped>
 .notFound {
   width: 100vw;
   height: 100vh;

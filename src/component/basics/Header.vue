@@ -5,21 +5,24 @@
         <i class="iconfont icon-tubiao"></i>
       </div>
       <div class="sysText">XXX系统</div>
-      <div class="navMenuBtn" @click="collapseChange">
-        <i :class="['iconfont', {'icon-shouqi' : !isCollapse, 'icon-zhankai' : isCollapse}]"></i>
+      <div class="navMenuBtn" @click="$store.commit('collapseChange')">
+        <i :class="isCollapse ? 'iconfont icon-zhankai' : 'iconfont icon-shouqi'"></i>
       </div>
     </div>
     <div class="info">
+      <div class="fullScreen" @click="fullScreenChange">
+        <i :class="!isfullScreen ? 'iconfont icon-fangda' : 'iconfont icon-suoxiao' "></i>
+      </div>
       <el-dropdown trigger="click" placement="top">
         <div class="userInfo">
           <div class="userImg">
-            <img src="../../assets/images/touxiang.png" alt="头像">
+            <img :src="headPortrait" alt="头像">
           </div>
           <div class="userName">
             <p onselectstart="return false">马晓川</p>
           </div>
         </div>
-        <el-dropdown-menu slot="dropdown" class="infoDropdown" style="width: 130px;">
+        <el-dropdown-menu slot="dropdown" style="width: 110px;">
           <el-dropdown-item
             v-for="(item ,index) in dropdownMenuList"
             :key="index"
@@ -38,14 +41,15 @@
 <script>
 import { mapState, mapMutations } from "vuex";
 export default {
-  name: "hader",
   data() {
     return {
+      headPortrait: this.imagesPath.headPortrait,
       dropdownMenuList: [
-        { icon: "icon-shezhi", text: "设置", disabled: true },
+        { icon: "icon-shezhi", text: "设置", disabled: false },
         { icon: "icon-suoping", text: "锁屏", disabled: false },
         { icon: "icon-tuichu", text: "退出", disabled: false }
-      ]
+      ],
+      isfullScreen: false
     };
   },
   computed: {
@@ -53,24 +57,30 @@ export default {
   },
 
   methods: {
-    ...mapMutations(["collapseChange"]),
+    ...mapMutations(["collapseChange", "setupPanelChange", "setupPanelClose"]),
     dropdownMenu(res) {
       switch (res) {
         case "设置":
-          //
+            this.$store.commit('setupPanelChange');
           break;
         case "锁屏":
-          this.$router.push("lockScreen");
+            this.$router.push("lockScreen");
+            this.$store.commit('setupPanelClose');
           break;
         case "退出":
-          this.$router.push("login");
+            this.storage.sessionRemove('token');
+            this.$router.push("login");
+            this.$store.commit('setupPanelClose');
           break;
       }
+    },
+    fullScreenChange() {
+      this.tool.fullScreen(this);
     }
   }
 };
 </script>
-<style lang="less">
+<style lang="scss">
 .el-header {
   background-color: #fff;
   text-align: center;
@@ -79,6 +89,8 @@ export default {
   padding: 0;
   display: flex;
   justify-content: space-between;
+  z-index: 20;
+  box-shadow: 0px -1px 6px 0px rgba(0, 0, 0, 0.1);
 
   .sysInfo {
     width: 290px;
@@ -131,6 +143,18 @@ export default {
     align-items: center;
     cursor: pointer;
     background-color: #fff;
+
+    .fullScreen {
+      width: 30px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+
+      .iconfont {
+        font-size: 26px;
+        color: #5a5d62;
+      }
+    }
 
     .userInfo {
       min-width: 120px;
