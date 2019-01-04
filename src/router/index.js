@@ -2,17 +2,18 @@ import Vue from "vue";
 import Router from "vue-router";
 Vue.use(Router);
 
-// 路由懒加载
+// 页面框架
 const Home = () => import("../page/basics/home");
 const Login = () => import("../page/basics/login");
 const LockScreen = () => import("../page/basics/lockScreen");
 const NotFound = () => import("../page/basics/notFound");
 const Welcome = () => import("../page/basics/welcome");
 
-// cw
-const Cw = () => import("../page/caiwu/cw");
-const Wl = () => import("../page/caiwu/wl");
-const UpImage = () => import("../component/upload/UpImage");
+// 管理
+const Region = () => import("../page/administration/region"); //区域管理
+const Organization = () => import("../page/administration/organization"); //组织架构
+const Role = () => import("../page/administration/role"); //角色管理
+const User = () => import("../page/administration/user"); //用户管理
 
 // keepAlive:true
 // permission 菜单访问权限
@@ -38,27 +39,35 @@ const router = new Router({
           }
         },
         {
-          path: "/cw",
-          name: "cw",
-          component: Cw,
+          path: "/region",
+          name: "region",
+          component: Region,
           meta: {
-            title: "财务表"
+            title: "区域管理"
           }
         },
         {
-          path: "/wl",
-          name: "wl",
-          component: Wl,
+          path: "/organization",
+          name: "organization",
+          component: Organization,
           meta: {
-            title: "物流表"
+            title: "组织架构"
           }
         },
         {
-          path: "/upimage",
-          name: "upimage",
-          component: UpImage,
+          path: "/role",
+          name: "role",
+          component: Role,
           meta: {
-            title: "UpImage"
+            title: "角色管理"
+          }
+        },
+        {
+          path: "/user",
+          name: "user",
+          component: User,
+          meta: {
+            title: "用户管理"
           }
         }
       ]

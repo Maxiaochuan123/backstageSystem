@@ -1,13 +1,5 @@
 <template>
   <el-main>
-    <div id="switchPage">
-      <el-breadcrumb separator="/">
-        <el-breadcrumb-item v-for="(item, index) in currentBreadcrumb" :key="index">
-          <router-link :to="item.path">{{item.meta.title}}</router-link>
-        </el-breadcrumb-item>
-      </el-breadcrumb>
-    </div>
-
     <div id="contentBox" @click="closeSetupPanel">
       <el-row>
         <el-col :span="24">
@@ -35,35 +27,15 @@ export default {
   components: { SetupPanel },
   data() {
     return {
-      list: [{ name: false }],
-      currentBreadcrumb: this.storage.sessionGet("currentBreadcrumb") || []
+      
     };
   },
 
   methods: {
     ...mapMutations(["setupPanelClose"]),
-
-    getBreadcrumb() {
-      let currentBreadcrumbList = this.$route.matched.map(item => {
-        if (item.name == "Home") {
-          item.path = "/";
-        }
-        return { meta: item.meta, path: item.path };
-      });
-      // 设置面包屑 菜单,防止刷新丢失
-      this.storage.sessionSet("currentBreadcrumb", currentBreadcrumbList);
-      this.currentBreadcrumb = this.storage.sessionGet("currentBreadcrumb");
-
-      // 设置当前点击的 菜单,防止刷新丢失
-      this.storage.sessionSet("currentPath", this.$route.name);
-    },
+    
     closeSetupPanel() {
       this.$store.commit("setupPanelClose");
-    }
-  },
-  watch: {
-    $route(to, from) {
-      this.getBreadcrumb();
     }
   }
 };
@@ -73,26 +45,17 @@ export default {
   background-color: #f1f2f7;
   text-align: center;
   height: calc(100vh - 60px);
-  padding: 8px;
+  padding: 6px;
   position: relative;
   overflow: hidden;
-
-  #switchPage {
-    height: 28px;
-    padding: 8px;
-    margin-bottom: 10px;
-    box-sizing: border-box;
-    background-color: #fff;
-    box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.1);
-  }
-
+  
   #contentBox {
     width: 100%;
     // height: calc(100% - 40px);
     height: 100%;
     overflow-y: scroll;
-    background-color: #fff;
-    box-shadow: 0px 0px 1px 0px rgba(0, 0, 0, 0.1);
+    // background-color: #fff;
+    // box-shadow: 0px 0px 1px 0px rgba(0, 0, 0, 0.1);
     overflow: scroll;
 
     .el-row {

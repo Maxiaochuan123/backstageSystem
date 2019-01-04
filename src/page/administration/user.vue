@@ -1,5 +1,5 @@
 <template>
-  <div class="cw">
+  <div class="user">
     <el-table :data="tableData" style="width: 100%">
       <el-table-column prop="date" label="日期" width="180"></el-table-column>
       <el-table-column prop="name" label="姓名" width="180"></el-table-column>
@@ -10,7 +10,7 @@
 
 <script>
 export default {
-  name: "cw",
+  name: "user",
   data() {
     return {
       tableData: [
@@ -71,6 +71,6 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-.cw {
+.user {
 }
 </style>

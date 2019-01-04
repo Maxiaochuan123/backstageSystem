@@ -2,13 +2,23 @@
   <el-header>
     <div class="sysInfo">
       <div class="sysIcon">
-        <i class="iconfont icon-tubiao"></i>
+        <!-- <i class="iconfont icon-tubiao"></i> -->
+        <div class="sysText">众汇车服权限管理系统</div>
       </div>
-      <div class="sysText">XXX系统</div>
       <div class="navMenuBtn" @click="$store.commit('collapseChange')">
         <i :class="isCollapse ? 'iconfont icon-zhankai' : 'iconfont icon-shouqi'"></i>
       </div>
+      <div class="switchPage">
+        <el-breadcrumb separator="/">
+          <el-breadcrumb-item v-for="(item, index) in currentBreadcrumb" :key="index">
+            <router-link :to="item.path">{{item.meta.title}}</router-link>
+          </el-breadcrumb-item>
+        </el-breadcrumb>
+      </div>
     </div>
+
+    
+
     <div class="info">
       <div class="fullScreen" @click="fullScreenChange">
         <i :class="!isfullScreen ? 'iconfont icon-fangda' : 'iconfont icon-suoxiao' "></i>
@@ -45,11 +55,12 @@ export default {
     return {
       headPortrait: this.imagesPath.headPortrait,
       dropdownMenuList: [
-        { icon: "icon-shezhi", text: "设置", disabled: false },
+        { icon: "icon-shezhi", text: "设置", disabled: true },
         { icon: "icon-suoping", text: "锁屏", disabled: false },
         { icon: "icon-tuichu", text: "退出", disabled: false }
       ],
-      isfullScreen: false
+      isfullScreen: false,
+      currentBreadcrumb: this.storage.sessionGet("currentBreadcrumb") || []
     };
   },
   computed: {
@@ -76,6 +87,26 @@ export default {
     },
     fullScreenChange() {
       this.tool.fullScreen(this);
+    },
+
+    getBreadcrumb() {
+      let currentBreadcrumbList = this.$route.matched.map(item => {
+        if (item.name == "Home") {
+          item.path = "/";
+        }
+        return { meta: item.meta, path: item.path };
+      });
+      // 设置面包屑 菜单,防止刷新丢失
+      this.storage.sessionSet("currentBreadcrumb", currentBreadcrumbList);
+      this.currentBreadcrumb = this.storage.sessionGet("currentBreadcrumb");
+
+      // 设置当前点击的 菜单,防止刷新丢失
+      this.storage.sessionSet("currentPath", this.$route.name);
+    },
+  },
+  watch: {
+    $route(to, from) {
+      this.getBreadcrumb();
     }
   }
 };
@@ -93,18 +124,19 @@ export default {
   box-shadow: 0px -1px 6px 0px rgba(0, 0, 0, 0.1);
 
   .sysInfo {
-    width: 290px;
+    width: 432px;
     height: 100%;
     box-sizing: border-box;
-    padding-left: 30px;
+    // padding-left: 30px;
     display: flex;
-    background-color: #4380d3;
+    
     .sysIcon {
-      width: 50px;
+      width: 250px;
       height: 100%;
       display: flex;
       justify-content: center;
       align-items: center;
+      background-color: #4380d3;
 
       .icon-tubiao {
         color: #fff;
@@ -116,7 +148,7 @@ export default {
       height: 100%;
       line-height: 60px;
       text-align: left;
-      padding-left: 10px;
+      // padding-left: 10px;
       color: #fff;
     }
 
@@ -132,6 +164,15 @@ export default {
       .icon-zhankai {
         color: #606266;
       }
+    }
+
+    .switchPage {
+      height: 100%;
+      margin-left: 20px;
+      box-sizing: border-box;
+      background-color: #fff;
+      display: flex;
+      align-items: center;
     }
   }
 
