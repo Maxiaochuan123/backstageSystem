@@ -89,17 +89,17 @@ const router = new Router({
     }
   ]
 });
-router.beforeEach((to, from, next) => {
-  if (sessionStorage.getItem("token")) {
-    next();
-  } else {
-    if (to.path == "/login") {
-      //多判断一次路径 避免 死循环
-      next();
-    } else {
-      next("/login");
-    }
-  }
-});
+// router.beforeEach((to, from, next) => {
+//   if (sessionStorage.getItem("token")) {
+//     next();
+//   } else {
+//     if (to.path == "/login") {
+//       //多判断一次路径 避免 死循环
+//       next();
+//     } else {
+//       next("/login");
+//     }
+//   }
+// });
 
 export default router;

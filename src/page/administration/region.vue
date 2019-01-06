@@ -1,4 +1,5 @@
 <template>
+<!-- 区域管理 -->
   <div class="region">
     <!-- 操作栏 -->
     <div class="actionBar">
@@ -19,7 +20,7 @@
 
             <div slot="footer" class="dialog-footer">
               <el-button size="mini" @click="closeDialog">取 消</el-button>
-              <el-button type="primary" size="mini" :loading="btnLoading" @click="addFnc">确 定</el-button>
+              <el-button type="primary" size="mini" :loading="btnLoading" @click="submit">提 交</el-button>
             </div>
           </el-dialog>
         </el-col>
@@ -27,7 +28,7 @@
     </div>
     <!-- 表格 -->
     <div class="content">
-      <el-table :data="tableData" border style="width: 100%">
+      <el-table :data="tableData" border style="width: 100%; height:100%;" v-loading="tableLoading">
         <el-table-column type="expand">
           <template slot-scope="scope">
             <el-form>
@@ -174,7 +175,7 @@ export default {
       this.dialogText = title;
       this.provinceId = title == '大区' ? scope.id : null;
       this.btnText = btnText;
-      
+
       this.$nextTick(()=>{
         if(btnText == '编辑'){
           this.ruleForm.fieldName = scope.date;
@@ -184,9 +185,9 @@ export default {
       });
 
     },
-    
-    // 新增 or 编辑
-    addFnc(){
+
+    //提交
+    submit(){
       // console.log(this.provinceId)
       this.$refs['ruleForm'].validate((valid) => {
         if (valid) {
@@ -200,7 +201,7 @@ export default {
             this.btnLoading = false;
             this.resetFn();
           },1000)
-          
+
         } else {
           return false;
         }
@@ -212,7 +213,7 @@ export default {
 <style lang="scss">
 .region {
   height: calc(100vh - 72px);
-  
+
   .actionBar {
     width: 100%;
     height: 44px;
@@ -288,7 +289,7 @@ export default {
   //   margin-bottom: 0px;
   // }
   .el-dialog{
-    width: 22%;
+    width: 20%;
   }
 }
 </style>

@@ -1,4 +1,5 @@
 <template>
+<!-- 角色管理 -->
   <div class="role">
     <!-- 操作栏 -->
     <div class="actionBar">
@@ -9,7 +10,7 @@
           <!-- 对话框 -->
           <el-dialog :title="`${dialogText}角色`" :visible.sync="dialogStatus" @close="closeDialog">
             <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
-               
+
               <el-row>
                 <el-col :span="12">
                   <el-form-item label="角色名称:" prop="roleName">
@@ -35,24 +36,24 @@
                 <el-col :span="12">
                   <el-form-item label="数据范围:" prop="dataRange">
                     <el-select v-model="ruleForm.dataRange" placeholder="请选择数据范围"  clearable :disabled="isSee">
-                      <el-option :label="item.label" :value="item.value" v-for="(item,index) in dataRangeList" :key="index"></el-option>
+                      <el-option :label="item.label" :value="item.value" v-for="(item,index) in dictionaries.dataRangeList" :key="index"></el-option>
                     </el-select>
                   </el-form-item>
                 </el-col>
                 <el-col :span="12">
                   <el-form-item label="角色类型:" prop="roleType">
                     <el-select v-model="ruleForm.roleType" placeholder="请选择角色类型"  clearable :disabled="isSee">
-                      <el-option :label="item.label" :value="item.value" v-for="(item,index) in roleTypeList" :key="index"></el-option>
+                      <el-option :label="item.label" :value="item.value" v-for="(item,index) in dictionaries.roleTypeList" :key="index"></el-option>
                     </el-select>
                   </el-form-item>
                 </el-col>
               </el-row>
-              
+
             </el-form>
 
             <div slot="footer" class="dialog-footer">
               <el-button size="mini" @click="closeDialog">取 消</el-button>
-              <el-button type="primary" size="mini" @click="addFnc" :loading="btnLoading" v-if="dialogText != '查看'">确 定</el-button>
+              <el-button type="primary" size="mini" @click="submit" :loading="btnLoading" v-if="dialogText != '查看'">提 交</el-button>
             </div>
           </el-dialog>
         </el-col>
@@ -60,7 +61,7 @@
     </div>
     <!-- 表格 -->
     <div class="content">
-      <el-table :data="tableData" border style="width: 100%">
+      <el-table :data="tableData" border style="width: 100%; height:100%;" v-loading="tableLoading">
         <el-table-column type="index" width="50"></el-table-column>
         <el-table-column prop="roleName" label="角色名称"></el-table-column>
         <el-table-column prop="englishName" label="英文名称"></el-table-column>
@@ -71,7 +72,7 @@
             <span :class="switchStatu(scope.row.status, 'enable','prohibit')">{{scope.row.status == 0 ? '禁用' : '启用'}}</span>
           </template>
         </el-table-column>
-        
+
         <!-- 操作 -->
         <el-table-column label="操作" width="240">
           <template slot-scope="scope">
@@ -83,7 +84,7 @@
               :class="switchStatu(scope.row.status, 'prohibit','enable')"
               @click="enableDisabled(scope.$index, scope.row)"
             >{{switchStatu(scope.row.status, '禁用', '启用') }}</el-button>
-            <el-button type="text" class="danger" icon="el-icon-delete" size="mini" @click="showDialog(scope.row,'删除')">删除</el-button>
+            <el-button type="text" class="danger" icon="el-icon-delete" size="mini" @click="deletItem(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -113,39 +114,6 @@ export default {
       dialogText:'', //对话框 title
       isSee:false, //是否查看
 
-      // 数据范围 ArrList
-      dataRangeList:[{
-        label:"所有数据",
-        value:"1"
-      },{
-        label:"所在公司数据",
-        value:"2"
-      },{
-        label:"所在公司及以下数据",
-        value:"3"
-      },{
-        label:"所在部门数据",
-        value:"4"
-      },{
-        label:"所在部门及以下数据",
-        value:"5"
-      },{
-        label:"仅本人数据",
-        value:"6"
-      }],
-
-      // 角色类型 ArrList
-      roleTypeList:[{
-        label:"任务分配",
-        value:"1"
-      },{
-        label:"管理角色",
-        value:"2"
-      },{
-        label:"普通角色",
-        value:"3"
-      }],
-
       // 表单
       ruleForm:{
         roleName:"", //角色名称
@@ -160,7 +128,7 @@ export default {
         englishName:[{required: true, message: '请输入英文名称', trigger: 'blur'}],
         roleDescribe:[{required: true, message: '请输入角色描述', trigger: 'blur'}],
         dataRange:[{required: true, message: '请输入数据范围', trigger: 'change'}],
-        roleType:[{required: true, message: '请输入角色类型', trigger: 'change'}],
+        roleType:[{required: true, message: '请输入角色类型', trigger: 'change'}]
       },
 
       // 表格
@@ -171,7 +139,8 @@ export default {
           dataRange: "仅本人数据",
           roleDescribe: "公证",
           roleType: "任务分配", //角色类型
-          status: 1
+          status: 1,
+          id:11
         },
         {
           roleName: "产品经理",
@@ -179,12 +148,13 @@ export default {
           dataRange: "所在部门及以下数据",
           roleDescribe: "内勤主管",
           roleType: "管理角色", //角色类型
-          status: 0
+          status: 0,
+          id:12
         }
       ]
     };
   },
-  created() {},
+  created() { },
 
   methods: {
     // 禁用 / 启用
@@ -195,7 +165,7 @@ export default {
     showDialog(scope, title){
       this.dialogStatus = true;
       this.dialogText = title;
-      
+
       this.$nextTick(()=>{
         if(title == '新增'){
           this.isSee = false;
@@ -207,13 +177,12 @@ export default {
           this.isSee = false;
         }
       });
-
     },
-    
-    // 新增 or 编辑
-    addFnc(){
+
+    //提交
+    submit(){
       this.$refs['ruleForm'].validate((valid) => {
-        
+
         if (valid) {
           if(this.dialogText == '新增'){
             console.log('新增')
@@ -229,6 +198,19 @@ export default {
           return false;
         }
       });
+    },
+
+    deletItem(scope){
+      this.$confirm('您确定要删除吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.$message({
+          type: 'success',
+          message: '删除成功!'
+        });
+      })
     }
   }
 };
@@ -236,7 +218,7 @@ export default {
 <style lang="scss">
 .role {
   height: calc(100vh - 72px);
-  
+
   .actionBar {
     width: 100%;
     height: 44px;
@@ -259,6 +241,7 @@ export default {
   }
 
   .content{
+    overflow-y: scroll;
     height: calc(100% - 90px);
     background-color: #fff;
 
@@ -298,7 +281,7 @@ export default {
       margin-left: 0px;
     }
   }
-  
+
 
   // .el-form-item__content {
   //   display: flex;
@@ -315,7 +298,7 @@ export default {
   //   margin-bottom: 0px;
   // }
   .el-dialog{
-    width: 40%;
+    width: 36%;
   }
 }
 </style>

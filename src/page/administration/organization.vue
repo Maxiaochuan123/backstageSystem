@@ -1,4 +1,5 @@
 <template>
+<!-- 组织架构管理 -->
   <div class="organization">
     <!-- 操作栏 -->
     <div class="actionBar">
@@ -87,7 +88,7 @@ export default {
       paging:{
         totalPage: 0,
         req:{
-          pageSize: 10, 
+          pageSize: 10,
           pageIndex: 1
         }
       },
@@ -176,7 +177,7 @@ export default {
       });
 
     },
-    
+
     // 新增 or 编辑
     addFnc(){
       // console.log(this.provinceId)
@@ -210,7 +211,7 @@ export default {
 <style lang="scss">
 .organization {
   height: calc(100vh - 72px);
-  
+
   .actionBar {
     width: 100%;
     height: 44px;
@@ -234,7 +235,7 @@ export default {
     }
   }
 
-  
+
 
   .prohibit {
     color: #f56c6c;

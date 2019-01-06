@@ -2,8 +2,10 @@
   <el-header>
     <div class="sysInfo">
       <div class="sysIcon">
-        <!-- <i class="iconfont icon-tubiao"></i> -->
-        <div class="sysText">众汇车服权限管理系统</div>
+        <div class="sysText">
+          <span>众汇车服</span>
+          <span>用户权限管理系统</span>
+        </div>
       </div>
       <div class="navMenuBtn" @click="$store.commit('collapseChange')">
         <i :class="isCollapse ? 'iconfont icon-zhankai' : 'iconfont icon-shouqi'"></i>
@@ -17,7 +19,7 @@
       </div>
     </div>
 
-    
+
 
     <div class="info">
       <div class="fullScreen" @click="fullScreenChange">
@@ -129,7 +131,7 @@ export default {
     box-sizing: border-box;
     // padding-left: 30px;
     display: flex;
-    
+
     .sysIcon {
       width: 250px;
       height: 100%;
@@ -146,10 +148,15 @@ export default {
     .sysText {
       width: 160px;
       height: 100%;
-      line-height: 60px;
       text-align: left;
-      // padding-left: 10px;
       color: #fff;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      span{
+        font-size: 18px;
+       line-height: 30px;
+      }
     }
 
     .navMenuBtn {

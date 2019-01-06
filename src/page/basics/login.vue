@@ -124,14 +124,14 @@ export default {
 
       this.$refs["form"].validate(valid => {
         if (valid) {
-          this.api.login(this.form).then(res => {
-            if (res.code != "SYS.200") {
-              this.$message.error(res.message);
+          // this.api.login(this.form).then(res => {
+          //   if (res.code != "SYS.200") {
+              // this.$message.error(res.message);
               setTimeout(() => (this.isLogin = false), 500);
-            } else {
+            // } else {
               this.$router.push("/");
-            }
-          });
+            // }
+          // });
         } else {
           this.isLogin = false;
           return false;

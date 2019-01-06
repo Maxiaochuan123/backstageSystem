@@ -3,11 +3,12 @@ export default{
   data(){
     return{
       btnLoading:false,
+      tableLoading:false,
       // 分页器
       paging:{
         totalPage: 60,
         req:{
-          pageSize: 10, 
+          pageSize: 10,
           pageIndex: 1
         }
       }
