@@ -35,10 +35,10 @@
               type="text" size="mini"
               :icon="switchStatu(scope.row.status, 'el-icon-close', 'el-icon-check')"
               :class="switchStatu(scope.row.status, 'prohibit','enable')"
-              @click="enableDisabledParent(scope.$index, scope.row)"
+              @click="enableDisabled(scope.row)"
             >{{switchStatu(scope.row.status, '禁用', '启用') }}</el-button>
             <el-button type="text" icon="el-icon-plus" size="mini" @click="showDialog('大区',scope.row,'新增')" v-if="scope.row.children">
-              {{新增大区}}
+              {{`新增${attrText(scope.row.attr)}`}}
             </el-button>
           </template>
         </el-table-column>
@@ -130,23 +130,39 @@ export default {
     };
   },
   created() {},
-
-  methods: {
-    // 禁用 / 启用  父
-    enableDisabledParent(index, scope) {
-      scope.status = scope.status == 1 ? 0 : 1;
-      scope.children.map(item => {
-        if(scope.status == 1){
-          return item.status = 1;
-        }else{
-          return item.status = 0;
+  computed: {
+    attrText(){
+      return (attr)=>{
+        switch (attr) {
+          case 'jt':
+              return '机构';
+            break;
+          case 'jg':
+              return '部门';
+            break;
+          case 'bm':
+              return '大区';
+            break;
         }
-      })
+      }
+    }
+  },
+  methods: {
+    // 禁用 / 启用
+    enableDisabled(scope) {
+      scope.status = scope.status == 1 ? 0 : 1;
+      if(scope.attr == 'jt'){
+        this.recursion(scope.children, scope);
+      }
     },
 
-    // 禁用 / 启用  子
-    enableDisabledChldren(index, scope, scopeParent){
-      scope.status = scope.status == 1 ? 0 : 1;
+    recursion(scopeChildren, scope){
+      scopeChildren.map(item => {
+        item.status = scope.status == 1 ? 1 : 0;
+        if(item.children){
+          this.recursion(item.children, scope);
+        }
+      })
     },
 
     // 显示对话框
