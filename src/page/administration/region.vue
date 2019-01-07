@@ -28,7 +28,7 @@
     </div>
     <!-- 表格 -->
     <div class="content">
-      <el-table :data="tableData" border style="width: 100%; height:100%;" v-loading="tableLoading">
+      <el-table :data="tableData" border style="width: 100%;" height="100%" v-loading="tableLoading">
         <el-table-column type="expand">
           <template slot-scope="scope">
             <el-form>
@@ -98,7 +98,7 @@ export default {
       dialogText:'', //对话框 title
       provinceId:'',  // 当前省id
       activeProvince:'', //省份(新增大区时用于展示)
-      btnText:'', //当前点击的是编辑 or 新增 按钮
+      btnText:'', //按钮文字
 
 
       // 表单
@@ -233,8 +233,8 @@ export default {
   }
 
   .content{
-    overflow-y: scroll;
-    height: calc(100% - 90px);
+    overflow-y: none;
+    height: calc(100vh - 164px);
     background-color: #fff;
 
     .statusChildren{
@@ -247,17 +247,6 @@ export default {
       color: #67c23a;
     }
   }
-  .content::-webkit-scrollbar {
-    /*滚动条整体样式*/
-    width: 4px;
-  }
-
-  .content::-webkit-scrollbar-thumb {
-    /*滚动条里面小方块*/
-    border-radius: 4px;
-    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
-    background: #c0c0c0;
-  }
 
   .paging{
     width: 100%;
@@ -268,6 +257,7 @@ export default {
     .el-pagination{
       min-width: 23%;
       margin-right: 10px;
+      z-index: 100;
     }
     .el-pagination__jump{
       margin-left: 0px;
@@ -285,11 +275,11 @@ export default {
   .el-table__expanded-cell[class*="cell"] {
     padding: 4px 98px 4px 70px;
   }
-  // .el-form-item {
-  //   margin-bottom: 0px;
-  // }
   .el-dialog{
     width: 20%;
+  }
+  .el-form-item{
+    margin-bottom: 0;
   }
 }
 </style>

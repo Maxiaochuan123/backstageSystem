@@ -61,7 +61,7 @@
     </div>
     <!-- 表格 -->
     <div class="content">
-      <el-table :data="tableData" border style="width: 100%; height:100%;" v-loading="tableLoading">
+      <el-table :data="tableData" border style="width: 100%;" height="100%" v-loading="tableLoading">
         <el-table-column type="index" width="50"></el-table-column>
         <el-table-column prop="roleName" label="角色名称"></el-table-column>
         <el-table-column prop="englishName" label="英文名称"></el-table-column>
@@ -241,8 +241,8 @@ export default {
   }
 
   .content{
-    overflow-y: scroll;
-    height: calc(100% - 90px);
+    overflow-y: none;
+    height: calc(100vh - 164px);
     background-color: #fff;
 
     .prohibit {
@@ -254,17 +254,6 @@ export default {
     .danger{
       color: #ff0000;
     }
-  }
-  .content::-webkit-scrollbar {
-    /*滚动条整体样式*/
-    width: 4px;
-  }
-
-  .content::-webkit-scrollbar-thumb {
-    /*滚动条里面小方块*/
-    border-radius: 4px;
-    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
-    background: #c0c0c0;
   }
 
   .paging{
@@ -282,11 +271,6 @@ export default {
     }
   }
 
-
-  // .el-form-item__content {
-  //   display: flex;
-  //   justify-content: space-between;
-  // }
   .el-form-item__content::after,
   .el-form-item__content::before {
     content: none;
@@ -294,9 +278,6 @@ export default {
   .el-table__expanded-cell[class*="cell"] {
     padding: 4px 98px 4px 70px;
   }
-  // .el-form-item {
-  //   margin-bottom: 0px;
-  // }
   .el-dialog{
     width: 36%;
   }

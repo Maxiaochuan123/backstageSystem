@@ -6,29 +6,29 @@
       <el-row class="sherchBar">
         <div>
           <span>搜索：</span>
-          <el-input v-model.trim="sherchForm.sherchInpt" placeholder="请输入用户名 / 姓名 / 手机号" clearable></el-input>
+          <el-input v-model.trim="sherchForm.sherchInpt" placeholder="请输入用户名 / 姓名 / 手机号" size="medium" clearable></el-input>
         </div>
         <div>
           <span>所属机构：</span>
-          <el-select v-model="sherchForm.mechanism" placeholder="请选择所属机构" clearable>
+          <el-select v-model="sherchForm.mechanism" placeholder="请选择所属机构" size="medium" clearable>
             <el-option :label="item.label" :value="item.value" v-for="(item,index) in dictionaries.mechanismList" :key="index"></el-option>
           </el-select>
         </div>
         <div>
           <span>所属部门：</span>
-          <el-select v-model="sherchForm.department" placeholder="请选择所属部门" clearable>
+          <el-select v-model="sherchForm.department" placeholder="请选择所属部门" size="medium" clearable>
             <el-option :label="item.label" :value="item.value" v-for="(item,index) in dictionaries.departmentList" :key="index"></el-option>
           </el-select>
         </div>
         <div>
           <span>大区：</span>
-          <el-select v-model="sherchForm.largeArea" placeholder="请选择大区" clearable>
+          <el-select v-model="sherchForm.largeArea" placeholder="请选择大区" size="medium" clearable>
             <el-option :label="item.label" :value="item.value" v-for="(item,index) in dictionaries.largeAreaList" :key="index"></el-option>
           </el-select>
         </div>
         <div>
           <span>用户角色：</span>
-          <el-select v-model="sherchForm.role" placeholder="请选择用户角色" clearable>
+          <el-select v-model="sherchForm.role" placeholder="请选择用户角色" size="medium" clearable>
             <el-option :label="item.label" :value="item.value" v-for="(item,index) in dictionaries.roleList" :key="index"></el-option>
           </el-select>
         </div>
@@ -148,7 +148,7 @@
     </div>
     <!-- 表格 -->
     <div class="content">
-      <el-table :data="tableData" border style="width: 100%; height:100%;" v-loading="tableLoading">
+      <el-table :data="tableData" border style="width: 100%;" height="100%" v-loading="tableLoading">
         <el-table-column type="index" width="50"></el-table-column>
         <el-table-column prop="accountNumber" label="用户登录名"></el-table-column>
         <el-table-column prop="userName" label="用户姓名"></el-table-column>
@@ -166,7 +166,7 @@
         </el-table-column>
 
         <!-- 操作 -->
-        <el-table-column label="操作" width="240">
+        <el-table-column label="操作" width="180">
           <template slot-scope="scope">
             <el-button type="text" icon="el-icon-search" size="mini" @click="showDialog(scope.row,'查看')">查看</el-button>
             <el-button type="text" icon="el-icon-edit" size="mini" @click="showDialog(scope.row,'编辑')">编辑</el-button>
@@ -176,7 +176,6 @@
               :class="switchStatu(scope.row.status, 'prohibit','enable')"
               @click="enableDisabled(scope.$index, scope.row)"
             >{{switchStatu(scope.row.status, '禁用', '启用') }}</el-button>
-            <el-button type="text" class="danger" icon="el-icon-delete" size="mini" @click="deletItem(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -339,20 +338,6 @@ export default {
       },1000)
     },
 
-    // 删除
-    deletItem(scope){
-      this.$confirm('您确定要删除吗?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        this.$message({
-          type: 'success',
-          message: '删除成功!'
-        });
-      })
-    },
-
     formatDate(row, column){
       return this.moment(row.createTime).format('YYYY-MM-DD');
     }
@@ -405,9 +390,6 @@ export default {
           color: #606266;
           font-size: 14px;
         }
-        .el-input__inner{
-          height: 34px;
-        }
       }
       >div:nth-child(1){
         width: 268px;
@@ -422,19 +404,17 @@ export default {
         }
       }
       >div:nth-child(4){
+        width: 174px;
         >span{
           width: 64px;
         }
-      }
-      >p{
-        margin-left: 20px;
       }
     }
   }
 
   .content{
-    overflow-y: scroll;
-    height: calc(100% - 90px);
+    overflow-y: none;
+    height: calc(100vh - 164px);
     background-color: #fff;
 
     .prohibit {
@@ -446,17 +426,6 @@ export default {
     .danger{
       color: #ff0000;
     }
-  }
-  .content::-webkit-scrollbar {
-    /*滚动条整体样式*/
-    width: 4px;
-  }
-
-  .content::-webkit-scrollbar-thumb {
-    /*滚动条里面小方块*/
-    border-radius: 4px;
-    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
-    background: #c0c0c0;
   }
 
   .paging{
@@ -474,11 +443,6 @@ export default {
     }
   }
 
-
-  // .el-form-item__content {
-  //   display: flex;
-  //   justify-content: space-between;
-  // }
   .el-form-item__content::after,
   .el-form-item__content::before {
     content: none;
@@ -486,9 +450,6 @@ export default {
   .el-table__expanded-cell[class*="cell"] {
     padding: 4px 98px 4px 70px;
   }
-  // .el-form-item {
-  //   margin-bottom: 0px;
-  // }
   .el-dialog{
     width: 36%;
   }

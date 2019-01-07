@@ -21,23 +21,12 @@ export default {
   methods: {}
 };
 </script>
-<style lang="scss" scoped>
+<style lang="scss">
 .welcome {
-  width: 100%;
-  height: 100%;
+  height: calc(100vh - 72px);
   background-color: #fff;
   display: flex;
   justify-content: center;
   align-items: center;
-
-  .fontImg{
-    width: 980px;
-    min-height: 180px;
-    max-height: 480px;
-    img{
-      width: 100%;
-      height: 100%;
-    }
-  }
 }
 </style>
