@@ -110,7 +110,7 @@ export default {
   name: "role",
   data() {
     return {
-      dialogStatus:false, //新增 or 编辑 对话框
+      dialogStatus:false, //对话框
       dialogText:'', //对话框 title
       isSee:false, //是否查看
 

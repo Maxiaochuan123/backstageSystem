@@ -1,28 +1,38 @@
 <template>
 <!-- 区域管理 -->
   <div class="organization">
-    <!-- 新增 -->
-    <!-- <el-button type="primary" icon="el-icon-plus" class="addBtn" size="small"  @click="showDialog('省份','','新增')">新增省份</el-button> -->
     <!-- 对话框 -->
-    <!-- <el-dialog :title="btnText == '新增'? `新增${dialogText}` : `编辑${dialogText}`" :visible.sync="dialogStatus" @close="closeDialog">
+    <el-dialog :title="btnText == '新增'? `新增${dialogText}` : `编辑${editText}`" :visible.sync="dialogStatus" @close="closeDialog">
       <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
-        <el-form-item label="省份名称:" v-if="btnText == '新增' && dialogText == '大区'">
-            <el-input v-model="activeProvince" disabled></el-input>
-          </el-form-item>
-          <el-form-item :label="`${dialogText}名称:`" prop="fieldName">
-            <el-input v-model.trim="ruleForm.fieldName" :placeholder="`请输入${dialogText}名称`" clearable></el-input>
-          </el-form-item>
+        <el-form-item label="上级名称:" prop="superiorName" v-if="isJt">
+          <el-input v-model="ruleForm.superiorName" disabled></el-input>
+        </el-form-item>
+        <el-form-item label="名称:" prop="name">
+          <el-input v-model="ruleForm.name" clearable></el-input>
+        </el-form-item>
+        <el-form-item label="机构属性:" prop="attribute" v-if="isDq">
+          <el-input v-model="ruleForm.attribute" disabled></el-input>
+        </el-form-item>
+        <el-form-item label="所属区域:" prop="region" v-if="isBm && isJt && isDq">
+          <el-select v-model="ruleForm.region" placeholder="请选择所属区域" clearable>
+            <el-option :label="item.label" :value="item.value" v-for="(item,index) in regionProvinceList" :key="index"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="描述:" prop="describe">
+          <el-input v-model="ruleForm.describe" type="textarea" :rows="2"></el-input>
+        </el-form-item>
       </el-form>
 
       <div slot="footer" class="dialog-footer">
         <el-button size="mini" @click="closeDialog">取 消</el-button>
         <el-button type="primary" size="mini" :loading="btnLoading" @click="submit">提 交</el-button>
       </div>
-    </el-dialog> -->
+    </el-dialog>
+
     <!-- 表格 -->
     <div class="content">
       <tableTree :data="tableData" border>
-        <el-table-column prop="label" label="名称"></el-table-column>
+        <el-table-column prop="name" label="名称"></el-table-column>
         <el-table-column prop="status" label="状态">
           <template slot-scope="scope">
             <span :class="switchStatu(scope.row.status, 'enable','prohibit')">{{scope.row.status == 0 ? '禁用' : '启用'}}</span>
@@ -30,15 +40,15 @@
         </el-table-column>
         <el-table-column label="操作" width="210">
           <template slot-scope="scope">
-            <el-button type="text" icon="el-icon-edit" size="mini" @click="showDialog('省份',scope.row,'编辑')">编辑</el-button>
+            <el-button type="text" icon="el-icon-edit" size="mini" @click="showDialog(scope,'编辑')">编辑</el-button>
             <el-button
               type="text" size="mini"
               :icon="switchStatu(scope.row.status, 'el-icon-close', 'el-icon-check')"
               :class="switchStatu(scope.row.status, 'prohibit','enable')"
               @click="enableDisabled(scope.row)"
             >{{switchStatu(scope.row.status, '禁用', '启用') }}</el-button>
-            <el-button type="text" icon="el-icon-plus" size="mini" @click="showDialog('大区',scope.row,'新增')" v-if="scope.row.children">
-              {{`新增${attrText(scope.row.attr)}`}}
+            <el-button type="text" icon="el-icon-plus" size="mini" @click="showDialog(scope,'新增')" v-if="scope.row.children">
+              {{`新增${attrText(scope.row.attribute)}`}}
             </el-button>
           </template>
         </el-table-column>
@@ -69,56 +79,85 @@ export default {
   },
   data() {
     return {
-      dialogStatus:false, //新增 or 编辑 对话框
+      dialogStatus:false, //对话框
       dialogText:'', //对话框 title
-      provinceId:'',  // 当前省id
-      activeProvince:'', //省份(新增大区时用于展示)
+      editText:'', //对话框 编辑时文字
       btnText:'', //按钮文字
+      isBm:true, //部门显示 or 隐藏
+      isJt:true, //集团显示 or 隐藏
+      isDq:true, //大区显示 or 隐藏
 
+      // 所属区域 (省) ArrList
+      regionProvinceList:[{
+        label:'成都一区',
+        value:1
+      },{
+        label:'成都二区',
+        value:2
+      },{
+        label:'成都三区',
+        value:3
+      }],
+      // 所属区域 (大区) ArrList
+      regionProvinceList:[{
+        label:'四川',
+        value:1
+      },{
+        label:'重庆',
+        value:2
+      }],
 
       // 表单
       ruleForm:{
-        fieldName:'', //新增 or 编辑 字段名
+        superiorName:'', //上级名称
+        name:'', //名称
+        attribute:'', //机构属性
+        region:'', //所属区域
+        describe:'' //描述
       },
       // 验证
       rules:{
-        fieldName:[{required: true, message: '内容不能为空', trigger: 'blur'}]
+        name:[{required: true, message: '请输入名称', trigger: 'blur'}],
+        region:[{required: true, message: '请选择所属区域', trigger: 'change'}],
       },
-
-      columns: [{
-        text: "名称",
-        value: "label"
-      },
-      {
-        text: "状态",
-        value: "status"
-      }],
 
       // 表格
       tableData: [
         {
-          label: "众汇金控集团",
+          name: "众汇金控集团",
           id: 1,
+          parentId:'',
           status: 1,
-          attr: 'jt',
+          attribute: 'jt',
+          region: 1,
+          describe:'描述~',
           children: [
             {
-              label: "洛阳公司",
+              name: "洛阳公司",
               id: 11,
+              parentId:1,
               status: 0,
-              attr: 'jg',
+              attribute: 'jg',
+              region: 2,
+              describe:'描述~',
               children: [
                 {
-                  label: "万网科技",
+                  name: "万网科技",
                   id: 111,
+                  parentId:11,
                   status: 0,
-                  attr: 'bm',
+                  attribute: 'bm',
+                  region: '',
+                  describe:'描述~',
                   children: [
                     {
-                      label: "成都一区",
+                      name: "成都一区",
                       id: 1111,
+                      parentId:111,
                       status: 1,
-                      attr: 'dq',
+                      attribute: 'dq',
+                      region: '',
+                      describe:'描述~',
                     }
                   ]
                 }
@@ -132,8 +171,8 @@ export default {
   created() {},
   computed: {
     attrText(){
-      return (attr)=>{
-        switch (attr) {
+      return (attribute)=>{
+        switch (attribute) {
           case 'jt':
               return '机构';
             break;
@@ -145,19 +184,37 @@ export default {
             break;
         }
       }
+    },
+    attrText2(){
+      return (attribute)=>{
+        switch (attribute) {
+          case 'jt':
+              return '集团';
+            break;
+          case 'jg':
+              return '机构';
+            break;
+          case 'bm':
+              return '部门';
+            break;
+          case 'dq':
+              return '大区';
+            break;
+        }
+      }
     }
   },
+  
   methods: {
     // 禁用 / 启用
     enableDisabled(scope) {
       scope.status = scope.status == 1 ? 0 : 1;
-      if(scope.attr == 'jt'){
+      if(scope.attribute == 'jt'){
         this.recursion(scope.children, scope);
       }
     },
-
     recursion(scopeChildren, scope){
-      scopeChildren.map(item => {
+      scopeChildren.forEach(item => {
         item.status = scope.status == 1 ? 1 : 0;
         if(item.children){
           this.recursion(item.children, scope);
@@ -166,33 +223,46 @@ export default {
     },
 
     // 显示对话框
-    showDialog(title, scope, btnText){
-      // this.dialogStatus = true;
-      // this.dialogText = title;
-      // this.provinceId = title == '大区' ? scope.id : null;
-      // this.btnText = btnText;
+    showDialog(scope, btnText){
+      this.dialogStatus = true;
+      this.dialogText = this.attrText(scope.row.attribute);
+      this.editText = this.attrText2(scope.row.attribute);
+      this.btnText = btnText;
 
-      // this.$nextTick(()=>{
-      //   if(btnText == '编辑'){
-      //     this.ruleForm.fieldName = scope.date;
-      //   }else if(btnText == '新增' && title == '大区'){
-      //     this.activeProvince = scope.date;
-      //   }
-      // });
-      console.log(scope.children)
+      this.$nextTick(()=>{
+        if(btnText == '编辑'){
+          this.ruleForm = {...scope.row}
+          this.ruleForm.attribute = this.attrText2(scope.row.attribute);
+          this.ruleForm.superiorName = scope.row.parent ? scope.row.parent.name : '';
+          this.isBm = scope.row.attribute == 'bm' ? false : true;
+          this.isJt = scope.row.attribute == 'jt' ? false : true;
+          this.isDq = scope.row.attribute == 'dq' ? false : true;
+          console.log(this.ruleForm);
+          
+        }else if(btnText == '新增'){
+          this.ruleForm.superiorName =  scope.row.parent ? scope.row.parent.name : '';
+          this.ruleForm.attribute = this.attrText(scope.row.attribute);
+          this.isBm = scope.row.attribute == 'jg' ? false : true;
+          this.isJt = true;
+          this.isDq = true;
+        }
+      });
 
     },
 
     //提交
     submit(){
-      // console.log(this.provinceId)
       this.$refs['ruleForm'].validate((valid) => {
         if (valid) {
-          if(this.btnText == '编辑'){
+          // if(this.btnText == '编辑'){
 
-          }else{
+          // }else{
 
-          }
+          // }
+          delete this.ruleForm._expanded; delete this.ruleForm._level; delete this.ruleForm._show;
+          delete this.ruleForm.superiorName; delete this.ruleForm.children;
+          // console.log(this.ruleForm);
+          
           this.btnLoading = true;
           setTimeout(()=>{
             this.btnLoading = false;
@@ -210,24 +280,6 @@ export default {
 <style lang="scss">
 .organization {
   height: calc(100vh - 72px);
-
-  .actionBar {
-    width: 100%;
-    height: 44px;
-    background-color: #fff;
-    margin-bottom: 6px;
-    box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.1);
-    .row {
-      padding-top: 6px;
-    }
-    .addBtn{
-      position: absolute;
-      right: 10px;
-    }
-    .el-input{
-      width: 90%;
-    }
-  }
 
   .content{
     overflow-y: none;
@@ -273,7 +325,16 @@ export default {
     padding: 4px 98px 4px 70px;
   }
   .el-dialog{
-    width: 20%;
+    width: 28%;
+    .el-input, .el-textarea{
+      width: 90%;
+    }
+    .el-select{
+      width: 90%;
+      .el-input{
+        width: 100%;
+      }
+    }
   }
 }
 </style>

@@ -4,6 +4,7 @@ export default{
     return{
       btnLoading:false,
       tableLoading:false,
+      
       // 分页器
       paging:{
         totalPage: 60,

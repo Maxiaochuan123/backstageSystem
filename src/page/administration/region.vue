@@ -94,7 +94,7 @@ export default {
   name: "region",
   data() {
     return {
-      dialogStatus:false, //新增 or 编辑 对话框
+      dialogStatus:false, //对话框
       dialogText:'', //对话框 title
       provinceId:'',  // 当前省id
       activeProvince:'', //省份(新增大区时用于展示)
