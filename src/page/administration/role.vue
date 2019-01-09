@@ -48,25 +48,25 @@
                   </el-form-item>
                 </el-col>
               </el-row>
-
-              <el-row>
-                <el-col :span="12">
-                  <div class="filter">
-                    <el-input v-model="filterText" placeholder="输入关键字进行过滤" size="medium" prefix-icon="iconfont icon-guolv" clearable></el-input>
-                  </div>
-                  <el-form-item label="权限:" prop="roleType">
-                    <el-tree ref="tree" class="filter-tree" accordion v-if="treeStatus"
-                      :data="data2" :props="defaultProps" 
-                      :default-expanded-keys="defaultExpansion"
-                      :default-checked-keys="defaultExpansion2"
-                      show-checkbox node-key="id" 
-                      :filter-node-method="filterNode">
-                    </el-tree>
-                  </el-form-item>
-                </el-col>
-              </el-row>
-
             </el-form>
+            <el-row>
+              <el-col :span="12">
+                <div class="filter">
+                  <span>权限过滤：</span>
+                  <el-input v-model="filterText" placeholder="输入关键字进行过滤" size="mini" prefix-icon="iconfont icon-guolv" @clear="filterClear" :disabled="isSee" clearable></el-input>
+                </div>
+                <div class="tree">
+                  <p><span>*</span>权限:</p>
+                  <!-- v-if="treeStatus" 手动销毁组件 防止数据不同步 -->
+                  <el-tree ref="tree" class="filter-tree" accordion v-if="treeStatus"
+                    :data="data2" :props="defaultProps"
+                    :default-expanded-keys="defaultExpansion"
+                    show-checkbox node-key="id"
+                    :filter-node-method="filterNode">
+                  </el-tree>
+                </div>
+              </el-col>
+            </el-row>
 
             <div slot="footer" class="dialog-footer">
               <el-button size="mini" @click="closeDialog">取 消</el-button>
@@ -138,8 +138,8 @@ export default {
       // tree
       treeStatus:false,
       filterText: '', //过滤
+      filterTempDefExp:[], //过滤恢复初始展开项
       defaultExpansion:[], //tree 默认展开项
-      defaultExpansion2:[],
       data2: [{
         id: 1,
         label: '功能菜单',
@@ -205,7 +205,7 @@ export default {
           dataRange: "6",
           roleDescribe: "公证",
           roleType: "1",
-          rolePermissions: [1,11,111,1111],
+          rolePermissions: [1111,1112],
           status: 1,
           id:11
         },
@@ -215,7 +215,7 @@ export default {
           dataRange: "5",
           roleDescribe: "内勤主管",
           roleType: "2",
-          rolePermissions: [1,11,111,1112],
+          rolePermissions: [1112,2221],
           status: 0,
           id:12
         }
@@ -240,31 +240,30 @@ export default {
       this.dialogStatus = true;
       this.dialogText = title;
       this.treeStatus = true;
-      let tempList = [...scope.rolePermissions]; tempList.splice(3,1);
+      this.defaultExpansion = [1] //默认只展示第一级
 
       this.$nextTick(()=>{
         if(title == '新增'){
           this.$nextTick(()=>{
-            console.log(tempList)
-            // this.defaultExpansion = tempList; //展开第一级
+
           })
           this.isSee = false;
         }else if(title == '查看'){
           this.ruleForm = {...scope};
           this.$nextTick(()=>{
-            console.log(tempList)
-            this.defaultExpansion = tempList;
-            this.$refs.tree.setCheckedKeys([scope.rolePermissions[scope.rolePermissions.length - 1]]);
+            this.defaultExpansion = scope.rolePermissions;
+            this.$refs.tree.setCheckedKeys(scope.rolePermissions);
           })
           this.isSee = true;
-          
+
         }else if(title == '编辑'){
           this.ruleForm = {...scope};
           this.$nextTick(()=>{
-            console.log(tempList)
-            this.defaultExpansion = tempList;
-            this.$refs.tree.setCheckedKeys([scope.rolePermissions[scope.rolePermissions.length - 1]]);
+            this.defaultExpansion = scope.rolePermissions;
+            this.$refs.tree.setCheckedKeys(scope.rolePermissions);
+            this.filterTempDefExp = scope.rolePermissions;
           })
+          console.log(this.ruleForm)
           this.isSee = false;
         }
       });
@@ -281,24 +280,24 @@ export default {
       this.$refs['ruleForm'].validate((valid) => {
         if (valid) {
           this.ruleForm.rolePermissions = this.$refs.tree.getCheckedKeys();
-          
+
           if(this.ruleForm.rolePermissions.length <= 0){
             this.$message.error('请选择权限');
           }else{
-            // if(this.dialogText == '新增'){
-            //   console.log('新增')
-            // }else if(this.dialogText == '编辑'){
-            //   console.log('编辑')
-            // }
-              this.btnLoading = true;
-              setTimeout(()=>{
-                this.btnLoading = false;
-                this.resetFn();
-              },1000)
+            if(this.dialogText == '新增'){
+              console.log('新增')
+            }else if(this.dialogText == '编辑'){
+              console.log('编辑')
             }
-          
-        } else {
-          return false;
+              // this.btnLoading = true;
+              // setTimeout(()=>{
+              //   this.btnLoading = false;
+              //   this.resetFn();
+              // },1000)
+            }
+
+      //   } else {
+      //     return false;
         }
       });
     },
@@ -315,6 +314,23 @@ export default {
           message: '删除成功!'
         });
       })
+    },
+
+    // 当清除 filterText时，恢复初始展开状态
+    filterClear(){
+      this.treeStatus = false;
+      setTimeout(() => {
+        this.treeStatus = true;
+        this.$nextTick(()=>{
+          if(this.dialogText == '编辑'){
+            this.defaultExpansion = this.filterTempDefExp;
+            this.$refs.tree.setCheckedKeys(this.filterTempDefExp);
+          }else if(this.dialogText == '新增'){
+            this.defaultExpansion = [1];
+            this.$refs.tree.setCheckedKeys([]);
+          }
+        })
+      });
     }
   }
 };
@@ -342,13 +358,35 @@ export default {
     .el-input{
       width: 100%;
     }
+    .filter{
+      padding-left: 28px;
+      display: flex;
+      align-items: center;
+      .el-input{
+        width: 54%;
+      }
+    }
+    .tree{
+      display: flex;
+      align-items: baseline;
+      padding-left: 28px;
+      box-sizing: border-box;
+      >p{
+        span{
+          color: #f56c6c;
+          margin-right: 4px;
+        }
+      }
+      .el-tree__empty-block{
+        width: 200px;
+      }
+    }
   }
 
   .content{
     overflow-y: none;
     height: calc(100vh - 164px);
     background-color: #fff;
-
     .prohibit {
       color: #f56c6c;
     }

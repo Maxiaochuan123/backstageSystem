@@ -4,7 +4,7 @@ export default{
     return{
       btnLoading:false,
       tableLoading:false,
-      
+
       // 分页器
       paging:{
         totalPage: 60,
@@ -28,10 +28,14 @@ export default{
     }
   },
   methods: {
+    // 时间戳返回日期
+    formatDate(row, column) {
+      return this.moment(row.createTime).format('YYYY-MM-DD');
+    },
+
     // 取消
     closeDialog(){
       this.resetFn();
-      // console.log(this.treeStatus)
     },
 
     // 重置
