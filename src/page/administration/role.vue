@@ -239,37 +239,35 @@ export default {
     showDialog(scope, title){
       this.dialogStatus = true;
       this.dialogText = title;
-      
-      // this.defaultExpansion2 = [];
+      this.treeStatus = true;
+      let tempList = [...scope.rolePermissions]; tempList.splice(3,1);
+
       this.$nextTick(()=>{
-        this.treeStatus = true;
         if(title == '新增'){
-          this.defaultExpansion = [1]; //展开第一级
+          this.$nextTick(()=>{
+            console.log(tempList)
+            // this.defaultExpansion = tempList; //展开第一级
+          })
           this.isSee = false;
         }else if(title == '查看'){
           this.ruleForm = {...scope};
-          // console.log(scope.rolePermissions)
-          this.defaultExpansion = [1,11,111];
-          // this.defaultExpansion2 = [1111];
           this.$nextTick(()=>{
+            console.log(tempList)
+            this.defaultExpansion = tempList;
             this.$refs.tree.setCheckedKeys([scope.rolePermissions[scope.rolePermissions.length - 1]]);
           })
-          // console.log('查看: ', scope.rolePermissions)
-          // console.log(scope.rolePermissions[scope.rolePermissions.length - 1])
           this.isSee = true;
           
         }else if(title == '编辑'){
           this.ruleForm = {...scope};
-          this.defaultExpansion = [1,11,111];
           this.$nextTick(()=>{
+            console.log(tempList)
+            this.defaultExpansion = tempList;
             this.$refs.tree.setCheckedKeys([scope.rolePermissions[scope.rolePermissions.length - 1]]);
           })
-          // this.defaultExpansion2 = [1112];
-          // console.log('编辑: ', scope.rolePermissions)
           this.isSee = false;
         }
       });
-      // console.log('Dialog: ',this.defaultExpansion2)
     },
 
     // tree
