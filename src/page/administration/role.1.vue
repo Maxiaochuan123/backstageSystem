@@ -55,10 +55,9 @@
                     <el-input v-model="filterText" placeholder="输入关键字进行过滤" size="medium" prefix-icon="iconfont icon-guolv" clearable></el-input>
                   </div>
                   <el-form-item label="权限:" prop="roleType">
-                    <el-tree ref="tree" class="filter-tree" accordion v-if="treeStatus"
+                    <el-tree ref="tree" class="filter-tree" accordion
                       :data="data2" :props="defaultProps" 
                       :default-expanded-keys="defaultExpansion"
-                      :default-checked-keys="defaultExpansion2"
                       show-checkbox node-key="id" 
                       :filter-node-method="filterNode">
                     </el-tree>
@@ -136,10 +135,9 @@ export default {
       isSee:false, //是否查看
 
       // tree
-      treeStatus:false,
+      treeStatus: false, //状态(销毁)
       filterText: '', //过滤
       defaultExpansion:[], //tree 默认展开项
-      defaultExpansion2:[],
       data2: [{
         id: 1,
         label: '功能菜单',
@@ -239,37 +237,36 @@ export default {
     showDialog(scope, title){
       this.dialogStatus = true;
       this.dialogText = title;
-      
-      // this.defaultExpansion2 = [];
+      this.treeStatus = true;
       this.$nextTick(()=>{
-        this.treeStatus = true;
+        
         if(title == '新增'){
           this.defaultExpansion = [1]; //展开第一级
+          // this.$nextTick(() => {
+            this.$refs.tree.setCheckedKeys([]);
+          // })
           this.isSee = false;
+
         }else if(title == '查看'){
           this.ruleForm = {...scope};
-          // console.log(scope.rolePermissions)
-          this.defaultExpansion = [1,11,111];
-          // this.defaultExpansion2 = [1111];
-          this.$nextTick(()=>{
-            this.$refs.tree.setCheckedKeys([scope.rolePermissions[scope.rolePermissions.length - 1]]);
-          })
-          // console.log('查看: ', scope.rolePermissions)
-          // console.log(scope.rolePermissions[scope.rolePermissions.length - 1])
+          this.defaultExpansion = [111];
+          // this.$nextTick(() => {
+            this.$refs.tree.setCheckedKeys(scope.rolePermissions);
+          // })
+          console.log('查看:',scope.rolePermissions)
           this.isSee = true;
-          
+
         }else if(title == '编辑'){
           this.ruleForm = {...scope};
-          this.defaultExpansion = [1,11,111];
-          this.$nextTick(()=>{
-            this.$refs.tree.setCheckedKeys([scope.rolePermissions[scope.rolePermissions.length - 1]]);
-          })
-          // this.defaultExpansion2 = [1112];
-          // console.log('编辑: ', scope.rolePermissions)
+          this.defaultExpansion = [111];
+          // this.$nextTick(() => {
+            this.$refs.tree.setCheckedKeys(scope.rolePermissions);
+          // })
+          console.log('编辑:',scope.rolePermissions)
+
           this.isSee = false;
         }
       });
-      // console.log('Dialog: ',this.defaultExpansion2)
     },
 
     // tree

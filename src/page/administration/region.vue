@@ -28,31 +28,8 @@
     </div>
     <!-- 表格 -->
     <div class="content">
-      <el-table :data="tableData" border style="width: 100%;" height="100%" v-loading="tableLoading">
-        <el-table-column type="expand">
-          <template slot-scope="scope">
-            <el-form>
-              <el-form-item v-for="(item, index) in scope.row.children" :key="index">
-                <div>
-                  <span>{{ item.date }}</span>
-                </div>
-                <div>
-                  <span :class="['statusChildren',switchStatu(item.status, 'enable','prohibit')]">{{item.status == 0 ? '禁用' : '启用'}}</span>
-                </div>
-                <div class="actionBtn">
-                  <el-button type="text" icon="el-icon-edit" size="mini" @click="showDialog('大区',item,'编辑')">编辑</el-button>
-                  <el-button
-                    type="text" size="mini"
-                    :icon="switchStatu(item.status, 'el-icon-close', 'el-icon-check')"
-                    :class="switchStatu(item.status, 'prohibit','enable')"
-                    @click="enableDisabledChldren(index, item, scope.row)"
-                  >{{switchStatu(item.status, '禁用', '启用') }}</el-button>
-                </div>
-              </el-form-item>
-            </el-form>
-          </template>
-        </el-table-column>
-        <el-table-column label="区域分类" prop="date"></el-table-column>
+      <tableTree :data="tableData" border>
+        <el-table-column label="区域分类" prop="label"></el-table-column>
         <el-table-column prop="status" label="状态">
           <template slot-scope="scope">
             <span :class="switchStatu(scope.row.status, 'enable','prohibit')">{{scope.row.status == 0 ? '禁用' : '启用'}}</span>
@@ -66,12 +43,12 @@
               type="text" size="mini"
               :icon="switchStatu(scope.row.status, 'el-icon-close', 'el-icon-check')"
               :class="switchStatu(scope.row.status, 'prohibit','enable')"
-              @click="enableDisabledParent(scope.$index, scope.row)"
+              @click="enableDisabled(scope.row)"
             >{{switchStatu(scope.row.status, '禁用', '启用') }}</el-button>
             <el-button type="text" icon="el-icon-plus" size="mini" @click="showDialog('大区',scope.row,'新增')">新增大区</el-button>
           </template>
         </el-table-column>
-      </el-table>
+      </tableTree>
     </div>
     <!-- 分页 -->
     <div class="paging">
@@ -90,8 +67,12 @@
 </template>
 
 <script>
+import tableTree from '../../component/tableTree/index'
 export default {
   name: "region",
+  components:{
+    tableTree
+  },
   data() {
     return {
       dialogStatus:false, //对话框
@@ -113,34 +94,34 @@ export default {
       // 表格
       tableData: [
         {
-          date: "四川省",
+          label: "四川省",
           id: 1,
           status: 1,
           children: [
             {
-              date: "成都一区",
+              label: "成都一区",
               id: 11,
               status: 0
             },
             {
-              date: "成都二区",
+              label: "成都二区",
               id: 12,
               status: 1
             }
           ]
         },
         {
-          date: "四川省",
+          label: "四川省",
           id: 2,
           status: 1,
           children: [
             {
-              date: "南充一区",
+              label: "南充一区",
               id: 13,
               status: 1
             },
             {
-              date: "南充二区",
+              label: "南充二区",
               id: 14,
               status: 1
             }
@@ -152,21 +133,20 @@ export default {
   created() {},
 
   methods: {
-    // 禁用 / 启用  父
-    enableDisabledParent(index, scope) {
+    // 禁用 / 启用
+    enableDisabled(scope) {
       scope.status = scope.status == 1 ? 0 : 1;
-      scope.children.map(item => {
-        if(scope.status == 1){
-          return item.status = 1;
-        }else{
-          return item.status = 0;
+      if(scope.children){
+        this.recursion(scope.children, scope);
+      }
+    },
+    recursion(scopeChildren, scope){
+      scopeChildren.forEach(item => {
+        item.status = scope.status == 1 ? 1 : 0;
+        if(item.children){
+          this.recursion(item.children, scope);
         }
       })
-    },
-
-    // 禁用 / 启用  子
-    enableDisabledChldren(index, scope, scopeParent){
-      scope.status = scope.status == 1 ? 0 : 1;
     },
 
     // 显示对话框
@@ -178,9 +158,9 @@ export default {
 
       this.$nextTick(()=>{
         if(btnText == '编辑'){
-          this.ruleForm.fieldName = scope.date;
+          this.ruleForm.fieldName = scope.label;
         }else if(btnText == '新增' && title == '大区'){
-          this.activeProvince = scope.date;
+          this.activeProvince = scope.label;
         }
       });
 
@@ -277,9 +257,6 @@ export default {
   }
   .el-dialog{
     width: 20%;
-  }
-  .el-form-item{
-    margin-bottom: 0;
   }
 }
 </style>

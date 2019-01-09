@@ -8,14 +8,14 @@
           <el-input v-model="ruleForm.superiorName" disabled></el-input>
         </el-form-item>
         <el-form-item label="名称:" prop="name">
-          <el-input v-model="ruleForm.name" clearable></el-input>
+          <el-input v-model="ruleForm.name" placeholder="请输入名称" clearable></el-input>
         </el-form-item>
         <el-form-item label="机构属性:" prop="attribute" v-if="isDq">
           <el-input v-model="ruleForm.attribute" disabled></el-input>
         </el-form-item>
         <el-form-item label="所属区域:" prop="region" v-if="isBm && isJt && isDq">
           <el-select v-model="ruleForm.region" placeholder="请选择所属区域" clearable>
-            <el-option :label="item.label" :value="item.value" v-for="(item,index) in regionProvinceList" :key="index"></el-option>
+            <el-option :label="item.label" :value="item.value" v-for="(item,index) in dictionaries.mechanismList" :key="index"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="描述:" prop="describe">
@@ -38,8 +38,11 @@
             <span :class="switchStatu(scope.row.status, 'enable','prohibit')">{{scope.row.status == 0 ? '禁用' : '启用'}}</span>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="210">
+        <el-table-column label="操作" width="270">
           <template slot-scope="scope">
+            <el-button type="text" icon="el-icon-plus" size="mini" @click="showDialog(scope,'新增')" v-if="scope.row.children">
+              {{`新增${attrText(scope.row.attribute)}`}}
+            </el-button>
             <el-button type="text" icon="el-icon-edit" size="mini" @click="showDialog(scope,'编辑')">编辑</el-button>
             <el-button
               type="text" size="mini"
@@ -47,9 +50,7 @@
               :class="switchStatu(scope.row.status, 'prohibit','enable')"
               @click="enableDisabled(scope.row)"
             >{{switchStatu(scope.row.status, '禁用', '启用') }}</el-button>
-            <el-button type="text" icon="el-icon-plus" size="mini" @click="showDialog(scope,'新增')" v-if="scope.row.children">
-              {{`新增${attrText(scope.row.attribute)}`}}
-            </el-button>
+            <el-button type="text" class="danger" icon="el-icon-delete" size="mini" @click="deletItem(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </tableTree>
@@ -86,26 +87,7 @@ export default {
       isBm:true, //部门显示 or 隐藏
       isJt:true, //集团显示 or 隐藏
       isDq:true, //大区显示 or 隐藏
-
-      // 所属区域 (省) ArrList
-      regionProvinceList:[{
-        label:'成都一区',
-        value:1
-      },{
-        label:'成都二区',
-        value:2
-      },{
-        label:'成都三区',
-        value:3
-      }],
-      // 所属区域 (大区) ArrList
-      regionProvinceList:[{
-        label:'四川',
-        value:1
-      },{
-        label:'重庆',
-        value:2
-      }],
+      parentList:'', //父节点
 
       // 表单
       ruleForm:{
@@ -129,7 +111,7 @@ export default {
           parentId:'',
           status: 1,
           attribute: 'jt',
-          region: 1,
+          region: '1',
           describe:'描述~',
           children: [
             {
@@ -138,7 +120,7 @@ export default {
               parentId:1,
               status: 0,
               attribute: 'jg',
-              region: 2,
+              region: '2',
               describe:'描述~',
               children: [
                 {
@@ -237,42 +219,70 @@ export default {
           this.isBm = scope.row.attribute == 'bm' ? false : true;
           this.isJt = scope.row.attribute == 'jt' ? false : true;
           this.isDq = scope.row.attribute == 'dq' ? false : true;
-          console.log(this.ruleForm);
+          console.log(this.ruleForm)
           
         }else if(btnText == '新增'){
-          this.ruleForm.superiorName =  scope.row.parent ? scope.row.parent.name : '';
+          this.ruleForm.superiorName = scope.row.name;
           this.ruleForm.attribute = this.attrText(scope.row.attribute);
           this.isBm = scope.row.attribute == 'jg' ? false : true;
           this.isJt = true;
           this.isDq = true;
+          console.log(this.ruleForm)
         }
       });
 
+    },
+
+    //查找父节点的 id = parentId 相等的父节点
+    findParent(data, parentId) {
+     data.forEach(item => {
+       if(parentId){
+         if(item.id == parentId){
+           this.parentList = item;
+         }else{
+           this.findParent(item.children, parentId);
+         }
+       }
+     })
     },
 
     //提交
     submit(){
       this.$refs['ruleForm'].validate((valid) => {
         if (valid) {
+          delete this.ruleForm._expanded; delete this.ruleForm._level; delete this.ruleForm.parent;
+          delete this.ruleForm._show; delete this.ruleForm.children; 
+          // console.log(this.ruleForm);
+
           // if(this.btnText == '编辑'){
 
           // }else{
 
           // }
-          delete this.ruleForm._expanded; delete this.ruleForm._level; delete this.ruleForm._show;
-          delete this.ruleForm.superiorName; delete this.ruleForm.children;
-          // console.log(this.ruleForm);
           
-          this.btnLoading = true;
-          setTimeout(()=>{
-            this.btnLoading = false;
-            this.resetFn();
-          },1000)
+          // this.btnLoading = true;
+          // setTimeout(()=>{
+          //   this.btnLoading = false;
+          //   this.resetFn();
+          // },1000);
 
         } else {
           return false;
         }
       });
+    },
+
+    deletItem(scope){
+      this.$confirm('您确定要删除吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.$message({
+          type: 'success',
+          message: '删除成功!'
+        });
+      })
     }
   }
 };
@@ -294,6 +304,9 @@ export default {
     }
     .enable {
       color: #67c23a;
+    }
+    .danger{
+      color: #ff0000;
     }
   }
 

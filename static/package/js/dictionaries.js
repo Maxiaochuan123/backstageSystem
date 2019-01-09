@@ -73,8 +73,8 @@ export default {
     value: "3"
   }],
 
-  // 角色类型
-  roleList: [{
+  // 用户角色
+  userRoleList: [{
     label: "产品经理",
     value: "1"
   }, {

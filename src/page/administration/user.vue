@@ -29,7 +29,7 @@
         <div>
           <span>用户角色：</span>
           <el-select v-model="sherchForm.role" placeholder="请选择用户角色" size="medium" clearable>
-            <el-option :label="item.label" :value="item.value" v-for="(item,index) in dictionaries.roleList" :key="index"></el-option>
+            <el-option :label="item.label" :value="item.value" v-for="(item,index) in dictionaries.userRoleList" :key="index"></el-option>
           </el-select>
         </div>
         <div class="serchBtn">
@@ -105,7 +105,7 @@
             <el-col :span="12">
               <el-form-item label="用户角色:" prop="role">
                 <el-select v-model="ruleForm.role" placeholder="请选择用户角色"  clearable :disabled="isSee">
-                  <el-option :label="item.label" :value="item.value" v-for="(item,index) in dictionaries.roleList" :key="index"></el-option>
+                  <el-option :label="item.label" :value="item.value" v-for="(item,index) in dictionaries.userRoleList" :key="index"></el-option>
                 </el-select>
               </el-form-item>
             </el-col>
@@ -153,11 +153,31 @@
         <el-table-column prop="accountNumber" label="用户登录名"></el-table-column>
         <el-table-column prop="userName" label="用户姓名"></el-table-column>
         <el-table-column prop="phoneNumber" label="手机号码"></el-table-column>
-        <el-table-column prop="mechanism" label="所属机构"></el-table-column>
-        <el-table-column prop="department" label="所属部门"></el-table-column>
-        <el-table-column prop="largeArea" label="大区"></el-table-column>
-        <el-table-column prop="role" label="用户角色"></el-table-column>
-        <el-table-column prop="jobRank" label="职位等级"></el-table-column>
+        <el-table-column prop="mechanism" label="所属机构">
+          <template slot-scope="scope">
+            {{scope.row.mechanism | dictionariesFilter("mechanismList", scope.row.mechanism)}}
+          </template>
+        </el-table-column>
+        <el-table-column prop="department" label="所属部门">
+          <template slot-scope="scope">
+            {{scope.row.department | dictionariesFilter("departmentList", scope.row.department)}}
+          </template>
+        </el-table-column>
+        <el-table-column prop="largeArea" label="大区">
+          <template slot-scope="scope">
+            {{scope.row.largeArea | dictionariesFilter("largeAreaList", scope.row.largeArea)}}
+          </template>
+        </el-table-column>
+        <el-table-column prop="role" label="用户角色">
+          <template slot-scope="scope">
+            {{scope.row.role | dictionariesFilter("userRoleList", scope.row.role)}}
+          </template>
+        </el-table-column>
+        <el-table-column prop="jobRank" label="职位等级">
+          <template slot-scope="scope">
+            {{scope.row.jobRank | dictionariesFilter("jobRankList", scope.row.jobRank)}}
+          </template>
+        </el-table-column>
         <el-table-column prop="createTime" label="创建时间" :formatter="formatDate"></el-table-column>
         <el-table-column prop="status" label="状态">
           <template slot-scope="scope">
@@ -244,15 +264,15 @@ export default {
         {
           accountNumber:'mxc', //用户登录名
           userName:'马晓川', //用户姓名
-          mechanism:'四川公司', //所属机构
+          mechanism:'2', //所属机构
           phoneNumber:'13111866951', //手机号码
-          department:'总经办', //所属部门
+          department:'2', //所属部门
           idNumber:'511325199506070053 ', //身份证号
-          largeArea:'成都一区', //大区
+          largeArea:'2', //大区
           workPhone:'13111866951', //工作电话
-          role:'老总', //用户角色
-          jobRank:'SSS', //职位等级
-          jobPosition:'玩', //工作职位
+          role:'1', //用户角色
+          jobRank:'3', //职位等级
+          jobPosition:'3', //工作职位
           email:'724503670@qq.com', //电子邮箱
           createTime: Date.now(), //创建时间
           status: 1,
@@ -261,15 +281,15 @@ export default {
         {
           accountNumber:'mxc', //用户登录名
           userName:'马大川', //用户姓名
-          mechanism:'四川公司', //所属机构
+          mechanism:'1', //所属机构
           phoneNumber:'13111866951', //手机号码
-          department:'总经办', //所属部门
+          department:'1', //所属部门
           idNumber:'511325199506070053 ', //身份证号
-          largeArea:'成都一区', //大区
+          largeArea:'3', //大区
           workPhone:'13111866951', //工作电话
-          role:'老总', //用户角色
-          jobRank:'SSS', //职位等级
-          jobPosition:'玩', //工作职位
+          role:'2', //用户角色
+          jobRank:'1', //职位等级
+          jobPosition:'2', //工作职位
           email:'724503670@qq.com', //电子邮箱
           createTime: Date.now(), //创建时间
           status: 0,
@@ -315,15 +335,15 @@ export default {
 
         if (valid) {
           if(this.dialogText == '新增'){
-            console.log('新增')
+            console.log(this.ruleForm)
           }else if(this.dialogText == '编辑'){
-            console.log('编辑')
+            console.log(this.ruleForm)
           }
-          this.btnLoading = true;
-          setTimeout(()=>{
-            this.btnLoading = false;
-            this.resetFn();
-          },1000)
+          // this.btnLoading = true;
+          // setTimeout(()=>{
+          //   this.btnLoading = false;
+          //   this.resetFn();
+          // },1000)
         } else {
           return false;
         }

@@ -1,4 +1,4 @@
-// 为避免与 vue 方法冲突，所有自定义的方法以 $_ 开头
+import filter from '../../static/package/js/filters'
 export default{
   data(){
     return{
@@ -15,9 +15,14 @@ export default{
       }
     }
   },
+  filters: {
+    dictionariesFilter(text, name){
+      return filter.dictionariesFilter(text, name);
+    }
+  },
   computed:{
     switchStatu(){
-      return (data, status1, status2)=> {
+      return (data, status1, status2) => {
         return data == 1 ? status1 : status2
       }
     }
@@ -26,12 +31,14 @@ export default{
     // 取消
     closeDialog(){
       this.resetFn();
+      // console.log(this.treeStatus)
     },
 
     // 重置
     resetFn(){
       this.$refs['ruleForm'].resetFields();
       this.dialogStatus = false;
+      this.treeStatus = false;
     },
 
     // 分页
