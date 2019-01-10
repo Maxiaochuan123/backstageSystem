@@ -40,10 +40,10 @@
         </el-table-column>
         <el-table-column label="操作" width="270">
           <template slot-scope="scope">
-            <el-button type="text" icon="el-icon-plus" size="mini" @click="showDialog(scope,'新增')" v-if="scope.row.children">
+            <el-button type="text" icon="el-icon-plus" size="mini" @click="showDialog(scope.row,'新增')" v-if="scope.row.children">
               {{`新增${attrText(scope.row.attribute)}`}}
             </el-button>
-            <el-button type="text" icon="el-icon-edit" size="mini" @click="showDialog(scope,'编辑')">编辑</el-button>
+            <el-button type="text" icon="el-icon-edit" size="mini" @click="showDialog(scope.row,'编辑')">编辑</el-button>
             <el-button
               type="text" size="mini"
               :icon="switchStatu(scope.row.status, 'el-icon-close', 'el-icon-check')"
@@ -186,7 +186,7 @@ export default {
       }
     }
   },
-  
+
   methods: {
     // 禁用 / 启用
     enableDisabled(scope) {
@@ -207,24 +207,24 @@ export default {
     // 显示对话框
     showDialog(scope, btnText){
       this.dialogStatus = true;
-      this.dialogText = this.attrText(scope.row.attribute);
-      this.editText = this.attrText2(scope.row.attribute);
+      this.dialogText = this.attrText(scope.attribute);
+      this.editText = this.attrText2(scope.attribute);
       this.btnText = btnText;
 
       this.$nextTick(()=>{
         if(btnText == '编辑'){
-          this.ruleForm = {...scope.row}
-          this.ruleForm.attribute = this.attrText2(scope.row.attribute);
-          this.ruleForm.superiorName = scope.row.parent ? scope.row.parent.name : '';
-          this.isBm = scope.row.attribute == 'bm' ? false : true;
-          this.isJt = scope.row.attribute == 'jt' ? false : true;
-          this.isDq = scope.row.attribute == 'dq' ? false : true;
+          this.ruleForm = {...scope}
+          this.ruleForm.attribute = this.attrText2(scope.attribute);
+          this.ruleForm.superiorName = scope.parent ? scope.parent.name : '';
+          this.isBm = scope.attribute == 'bm' ? false : true;
+          this.isJt = scope.attribute == 'jt' ? false : true;
+          this.isDq = scope.attribute == 'dq' ? false : true;
           console.log(this.ruleForm)
-          
+
         }else if(btnText == '新增'){
-          this.ruleForm.superiorName = scope.row.name;
-          this.ruleForm.attribute = this.attrText(scope.row.attribute);
-          this.isBm = scope.row.attribute == 'jg' ? false : true;
+          this.ruleForm.superiorName = scope.name;
+          this.ruleForm.attribute = this.attrText(scope.attribute);
+          this.isBm = scope.attribute == 'jg' ? false : true;
           this.isJt = true;
           this.isDq = true;
           console.log(this.ruleForm)
@@ -251,7 +251,7 @@ export default {
       this.$refs['ruleForm'].validate((valid) => {
         if (valid) {
           delete this.ruleForm._expanded; delete this.ruleForm._level; delete this.ruleForm.parent;
-          delete this.ruleForm._show; delete this.ruleForm.children; 
+          delete this.ruleForm._show; delete this.ruleForm.children;
           // console.log(this.ruleForm);
 
           // if(this.btnText == '编辑'){
@@ -259,7 +259,7 @@ export default {
           // }else{
 
           // }
-          
+
           // this.btnLoading = true;
           // setTimeout(()=>{
           //   this.btnLoading = false;
