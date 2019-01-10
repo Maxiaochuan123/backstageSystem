@@ -91,42 +91,7 @@ export default {
       },
 
       // 表格
-      tableData: [
-        // {
-        //   areaName: "四川省",
-        //   id: 1,
-        //   isEnable: 1,
-        //   children: [
-        //     {
-        //       areaName: "成都一区",
-        //       id: 11,
-        //       isEnable: 0
-        //     },
-        //     {
-        //       areaName: "成都二区",
-        //       id: 12,
-        //       isEnable: 1
-        //     }
-        //   ]
-        // },
-        // {
-        //   areaName: "四川省",
-        //   id: 2,
-        //   isEnable: 1,
-        //   children: [
-        //     {
-        //       areaName: "南充一区",
-        //       id: 13,
-        //       isEnable: 1
-        //     },
-        //     {
-        //       areaName: "南充二区",
-        //       id: 14,
-        //       isEnable: 1
-        //     }
-        //   ]
-        // }
-      ]
+      tableData: []
     };
   },
   created() {
