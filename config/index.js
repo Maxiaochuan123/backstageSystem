@@ -11,18 +11,14 @@ module.exports = {
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
     proxyTable: {
-      '/zyjxc':{
-        target:'http://172.16.10.20:6006', //测试地址
-        // target:'http://192.168.50.232:8062', //李地址
+      '/user':{
+        // target:'http://172.16.10.20:6006', //测试地址
+        target:'http://192.168.50.138:8072', //杨地址
         changeOrigin:true
       },
       '/zhac1':{//登陆接口
         // target:'http://192.168.50.232:6006', //李地址
         target:'http://172.16.10.20:6006', //测试地址
-        changeOrigin:true,
-      },
-      '"/api':{//登陆接口
-        target:'http://222.212.141.38:8470/zh_carloan', //测试地址
         changeOrigin:true,
       }
     },

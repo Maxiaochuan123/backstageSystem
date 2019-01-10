@@ -99,4 +99,13 @@ export default {
     label: "E",
     value: "5"
   }],
+
+  // 快提快调
+  fastCarryTransferList: [{
+    label: "是",
+    value: "1"
+  }, {
+    label: "否",
+    value: "0"
+  }],
 }

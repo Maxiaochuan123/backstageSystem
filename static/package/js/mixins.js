@@ -1,4 +1,4 @@
-import filter from '../../static/package/js/filters'
+import filter from './filters'
 export default{
   data(){
     return{
@@ -29,7 +29,7 @@ export default{
   },
   methods: {
     // 时间戳返回日期
-    formatDate(row, column) {
+    formatDate(row) {
       return this.moment(row.createTime).format('YYYY-MM-DD');
     },
 

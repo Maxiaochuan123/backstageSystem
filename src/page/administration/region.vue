@@ -13,8 +13,8 @@
               <el-form-item label="省份名称:" v-if="btnText == '新增' && dialogText == '大区'">
                  <el-input v-model="activeProvince" disabled></el-input>
                </el-form-item>
-               <el-form-item :label="`${dialogText}名称:`" prop="fieldName">
-                 <el-input v-model.trim="ruleForm.fieldName" :placeholder="`请输入${dialogText}名称`" clearable></el-input>
+               <el-form-item :label="`${dialogText}名称:`" prop="areaName">
+                 <el-input v-model.trim="ruleForm.areaName" :placeholder="`请输入${dialogText}名称`" clearable></el-input>
                </el-form-item>
             </el-form>
 
@@ -28,11 +28,11 @@
     </div>
     <!-- 表格 -->
     <div class="content">
-      <tableTree :data="tableData" border>
-        <el-table-column label="区域分类" prop="label"></el-table-column>
+      <tableTree :data="tableData" border v-loading="tableLoading">
+        <el-table-column label="区域分类" prop="areaName"></el-table-column>
         <el-table-column prop="status" label="状态">
           <template slot-scope="scope">
-            <span :class="switchStatu(scope.row.status, 'enable','prohibit')">{{scope.row.status == 0 ? '禁用' : '启用'}}</span>
+            <span :class="switchStatu(scope.row.isEnable, 'enable','prohibit')">{{scope.row.isEnable == 0 ? '禁用' : '启用'}}</span>
           </template>
         </el-table-column>
 
@@ -41,11 +41,11 @@
             <el-button type="text" icon="el-icon-edit" size="mini" @click="showDialog('省份',scope.row,'编辑')">编辑</el-button>
             <el-button
               type="text" size="mini"
-              :icon="switchStatu(scope.row.status, 'el-icon-close', 'el-icon-check')"
-              :class="switchStatu(scope.row.status, 'prohibit','enable')"
+              :icon="switchStatu(scope.row.isEnable, 'el-icon-close', 'el-icon-check')"
+              :class="switchStatu(scope.row.isEnable, 'prohibit','enable')"
               @click="enableDisabled(scope.row)"
-            >{{switchStatu(scope.row.status, '禁用', '启用') }}</el-button>
-            <el-button type="text" icon="el-icon-plus" size="mini" @click="showDialog('大区',scope.row,'新增')">新增大区</el-button>
+            >{{switchStatu(scope.row.isEnable, '禁用', '启用') }}</el-button>
+            <el-button type="text" icon="el-icon-plus" size="mini" @click="showDialog('大区',scope.row,'新增')" v-if="scope.row.parentId == 0">新增大区</el-button>
           </template>
         </el-table-column>
       </tableTree>
@@ -81,68 +81,73 @@ export default {
       activeProvince:'', //省份(新增大区时用于展示)
       btnText:'', //按钮文字
 
-
       // 表单
       ruleForm:{
-        fieldName:'', //新增 or 编辑 字段名
+        areaName:'' //新增 or 编辑 字段名
       },
       // 验证
       rules:{
-        fieldName:[{required: true, message: '内容不能为空', trigger: 'blur'}]
+        areaName:[{required: true, message: '内容不能为空', trigger: 'blur'}]
       },
 
       // 表格
       tableData: [
-        {
-          label: "四川省",
-          id: 1,
-          status: 1,
-          children: [
-            {
-              label: "成都一区",
-              id: 11,
-              status: 0
-            },
-            {
-              label: "成都二区",
-              id: 12,
-              status: 1
-            }
-          ]
-        },
-        {
-          label: "四川省",
-          id: 2,
-          status: 1,
-          children: [
-            {
-              label: "南充一区",
-              id: 13,
-              status: 1
-            },
-            {
-              label: "南充二区",
-              id: 14,
-              status: 1
-            }
-          ]
-        }
+        // {
+        //   areaName: "四川省",
+        //   id: 1,
+        //   isEnable: 1,
+        //   children: [
+        //     {
+        //       areaName: "成都一区",
+        //       id: 11,
+        //       isEnable: 0
+        //     },
+        //     {
+        //       areaName: "成都二区",
+        //       id: 12,
+        //       isEnable: 1
+        //     }
+        //   ]
+        // },
+        // {
+        //   areaName: "四川省",
+        //   id: 2,
+        //   isEnable: 1,
+        //   children: [
+        //     {
+        //       areaName: "南充一区",
+        //       id: 13,
+        //       isEnable: 1
+        //     },
+        //     {
+        //       areaName: "南充二区",
+        //       id: 14,
+        //       isEnable: 1
+        //     }
+        //   ]
+        // }
       ]
     };
   },
-  created() {},
+  created() {
+    this.apiMethod.getRegion(this);
+  },
 
   methods: {
     // 禁用 / 启用
     enableDisabled(scope) {
-      scope.status = scope.status == 1 ? 0 : 1;
+      scope.isEnable = scope.isEnable == 1 ? 0 : 1;
+      // console.log(scope.row.parentId)
+      // this.api.changeStatus({geoId:scope.id}).then(res=>{
+      //   console.log(res);
+      // })
       if(scope.children){
         this.recursion(scope.children, scope);
       }
     },
     recursion(scopeChildren, scope){
       scopeChildren.forEach(item => {
-        item.status = scope.status == 1 ? 1 : 0;
+        item.isEnable = scope.isEnable == 1 ? 1 : 0;
         if(item.children){
           this.recursion(item.children, scope);
         }
@@ -158,9 +163,18 @@ export default {
 
       this.$nextTick(()=>{
         if(btnText == '编辑'){
-          this.ruleForm.fieldName = scope.label;
+          this.ruleForm.areaName = scope.areaName;
+          this.ruleForm.geoId = scope.id;
+          delete this.ruleForm.parentId ? this.ruleForm.parentId : '';
+
         }else if(btnText == '新增' && title == '大区'){
-          this.activeProvince = scope.label;
+          this.activeProvince = scope.areaName;
+          this.ruleForm.parentId = scope.id;
+          delete this.ruleForm.geoId ? this.ruleForm.geoId : '';
+
+        }else if(btnText == '新增' && title == '省份'){
+          delete this.ruleForm.geoId ? this.ruleForm.geoId : '';
+          this.ruleForm.parentId = 0;
         }
       });
 
@@ -168,20 +182,16 @@ export default {
 
     //提交
     submit(){
-      // console.log(this.provinceId)
       this.$refs['ruleForm'].validate((valid) => {
         if (valid) {
           if(this.btnText == '编辑'){
+            this.apiMethod.editRegion(this, this.api.editRegion);
+          }else if(this.btnText == '新增' && this.dialogText == '大区'){
+            this.apiMethod.addRegion(this, this.api.addRegion);
 
-          }else{
-
+          }else if(this.btnText == '新增' && this.dialogText == '省份'){
+            this.apiMethod.addRegion(this, this.api.addRegion);
           }
-          this.btnLoading = true;
-          setTimeout(()=>{
-            this.btnLoading = false;
-            this.resetFn();
-          },1000)
-
         } else {
           return false;
         }

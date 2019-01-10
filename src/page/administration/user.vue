@@ -130,15 +130,17 @@
               </el-form-item>
             </el-col>
           </el-row>
-        </el-form>
 
-        <el-row class="userPwd">
-          <el-col :span="12">
-            <span>*</span>
-            <span>用户登陆密码:</span>
-            <span>********</span>
-          </el-col>
-        </el-row>
+          <el-row class="fastCarryTransfer">
+            <el-col :span="8">
+              <el-form-item label="快提快调" prop="fastCarryTransfer">
+                <el-radio-group v-model="ruleForm.fastCarryTransfer">
+                  <el-radio :label="item.value" v-for="(item,index) in dictionaries.fastCarryTransferList" :key="index">{{item.label}}</el-radio>
+                </el-radio-group>
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </el-form>
 
         <div slot="footer" class="dialog-footer">
           <el-button size="mini" @click="closeDialog">取 消</el-button>
@@ -156,16 +158,6 @@
         <el-table-column prop="mechanism" label="所属机构">
           <template slot-scope="scope">
             {{scope.row.mechanism | dictionariesFilter("mechanismList", scope.row.mechanism)}}
-          </template>
-        </el-table-column>
-        <el-table-column prop="department" label="所属部门">
-          <template slot-scope="scope">
-            {{scope.row.department | dictionariesFilter("departmentList", scope.row.department)}}
-          </template>
-        </el-table-column>
-        <el-table-column prop="largeArea" label="大区">
-          <template slot-scope="scope">
-            {{scope.row.largeArea | dictionariesFilter("largeAreaList", scope.row.largeArea)}}
           </template>
         </el-table-column>
         <el-table-column prop="role" label="用户角色">
@@ -247,14 +239,20 @@ export default {
         role:'', //用户角色
         jobRank:'', //职位等级
         jobPosition:'', //工作职位
-        email:'' //电子邮箱
+        email:'', //电子邮箱
+        fastCarryTransfer:'', //快提快调
       },
       // 验证
       rules:{
-        accountNumber:[{required: true, message: '请输入用户登陆名', trigger: 'blur'}],
+        accountNumber:[
+          {required: true, message: '请输入用户登陆名', trigger: 'blur'},
+          {pattern: /^[0-9a-zA-Z]+$/, message: '只能是 数字，字母', trigger: ['blur']}
+        ],
         userName:[{required: true, message: '请输入用户姓名', trigger: 'blur'}],
         mechanism:[{required: true, message: '请输入所属机构', trigger: 'change'}],
+        phoneNumber:[{pattern: /^(13[0-9]|14[579]|15[0-3,5-9]|16[6]|17[0135678]|18[0-9]|19[89])\d{8}$/, message: '请输入正确的手机号', trigger: ['blur']}],
         department:[{required: true, message: '请输入所属部门', trigger: 'change'}],
+        idNumber:[{pattern: /^[1-9]\d{7}((0\d)|(1[0-2]))(([0|1|2]\d)|3[0-1])\d{3}$|^[1-9]\d{5}[1-9]\d{3}((0\d)|(1[0-2]))(([0|1|2]\d)|3[0-1])\d{3}([0-9]|X)$/, message: '请输入正确的身份证号', trigger: ['blur']}],
         largeArea:[{required: true, message: '请输入大区', trigger: 'change'}],
         role:[{required: true, message: '请输入用户角色', trigger: 'change'}],
         jobRank:[{required: true, message: '请输入职位等级', trigger: 'change'}]
@@ -275,6 +273,7 @@ export default {
           jobRank:'3', //职位等级
           jobPosition:'3', //工作职位
           email:'724503670@qq.com', //电子邮箱
+          fastCarryTransfer:'1', //快提快调
           createTime: Date.now(), //创建时间
           status: 1,
           id:11
@@ -292,6 +291,7 @@ export default {
           jobRank:'1', //职位等级
           jobPosition:'2', //工作职位
           email:'724503670@qq.com', //电子邮箱
+          fastCarryTransfer:'0', //快提快调
           createTime: Date.now(), //创建时间
           status: 0,
           id:12
@@ -325,6 +325,7 @@ export default {
           this.isSee = true;
         }else if(title == '编辑'){
           this.ruleForm = {...scope};
+          console.log(this.ruleForm)
           this.isSee = false;
         }
       });
@@ -399,17 +400,6 @@ export default {
     .el-input{
       width: 100%;
     }
-    .userPwd{
-      padding-left: 18px;
-      text-align: left;
-      span:nth-child(1){
-        color: #f56c6c;
-      }
-      span:nth-child(3){
-        padding-left: 6px;
-        line-height: 16px;
-      }
-    }
 
     .sherchBar{
       display: flex;
@@ -439,6 +429,17 @@ export default {
         width: 174px;
         >span{
           width: 64px;
+        }
+      }
+    }
+    .fastCarryTransfer{
+      margin-left: -2px;
+      .el-form-item__content{
+        width: 100px;
+        .el-radio-group{
+          label:last-child{
+            margin-left: 20px;
+          }
         }
       }
     }
