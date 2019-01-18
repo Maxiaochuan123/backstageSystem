@@ -18,26 +18,70 @@ export default {
       return res.data;
     })
   },
+  // 角色关联资源
+  getRelationRes() { return axios.get('/user/resources/get/tree').then(res => res.data) },
 
-  // 查看 省/区域
-  getRegion(params) {
-    return axios.get('/user/geo/get/list', {
-      params: params
-    }).then(res => res.data)
-  },
-  // 新增 省/区域
-  addRegion(params) {
-    return axios.post('/user/geo/insert', params).then(res => res.data)
-  },
-  // 编辑 省/区域
-  editRegion(params) {
-    return axios.put('/user/geo/update/geo', params).then(res => res.data)
-  },
 
+  // 获取 机构/区域
+  getRegion(params) { return axios.get('/user/geo/get/list', {params: params}).then(res => res.data) },
+  // 新增 机构/区域
+  addRegion(params) { return axios.post('/user/geo/insert', params).then(res => res.data) },
+  // 编辑 机构/区域
+  editRegion(params) { return axios.post('/user/geo/update/geo', params).then(res => res.data) },
   // 启用 / 禁用
-  changeStatus(params) {
-    return axios.post('/user/geo/update/state', params).then(res => res.data)
-  },
+  disabledRegion(params) { return axios.post('/user/geo/update/state', params).then(res => res.data) },
+
+
+  // 获取 组织架构
+  getMechanism(params) { return axios.get('/user/office/get/list', {params: params}).then(res => res.data) },
+  // 新增 组织架构
+  addMechanism(params) { return axios.post('/user/office/insert/office', params).then(res => res.data) },
+  // 编辑 组织架构
+  editMechanism(params) { return axios.post('/user/office/update/office', params).then(res => res.data) },
+  // 删除 组织架构
+  deleteMechanism(params) { return axios.post('/user/office/delete/office', params).then(res => res.data) },
+  // 启用 / 禁用
+  disabledMechanism(params) { return axios.post('/user/office/update/enable', params).then(res => res.data) },
+
+
+  // 获取 角色
+  getRole(params) { return axios.get('/user/role/get/role/list', {params: params}).then(res => res.data) },
+  // 新增 角色
+  addRole(params) { return axios.post('/user/role/insert/role', params).then(res => res.data) },
+  // 编辑 角色
+  editRole(params) { return axios.post('/user/role/update/role', params).then(res => res.data) },
+  // 删除 角色
+  deleteRole(params) { return axios.post('/user/role/delete/role', params).then(res => res.data) },
+  // 启用 / 禁用
+  disabledRole(params) { return axios.post('/user/role/update/enable', params).then(res => res.data) },
+
+
+  // 获取 用户
+  getUser(params) { return axios.get('/user/get/list', {params: params}).then(res => res.data) },
+  // 获取 角色info (编辑时,数据要拿 id 去后台查, 真尼玛B垃圾...)
+  getUserInfo(params) { return axios.get('/user/get/user/info', {params: params}).then(res => res.data) },
+  // 新增 用户
+  addUser(params) { return axios.post('/user/insert/user', params).then(res => res.data) },
+  // 编辑 用户
+  editUser(params) { return axios.post('/user/update/user', params).then(res => res.data) },
+  // 启用 / 禁用
+  disabledUser(params) { return axios.post('/user/update/user/enable', params).then(res => res.data) },
+  
+
+  // 获取 菜单
+  getMenu(params) { return axios.get('/user/resources/get/resources', {params: params}).then(res => res.data) },
+  // 新增 菜单
+  addMenu(params) { return axios.post('/user/resources/insert/resources', params).then(res => res.data) },
+  // 编辑 菜单
+  // editMenu(params) { return axios.post('/user/role/update/role', params).then(res => res.data) },
+  // 启用 / 禁用
+  // disabledMenu(params) { return axios.post('/user/role/update/enable', params).then(res => res.data) },
+
+
+
+
+
+
 
   // 上传
   upLoaod(params) {

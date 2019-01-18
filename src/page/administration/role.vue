@@ -18,51 +18,40 @@
                   </el-form-item>
                 </el-col>
                 <el-col :span="12">
-                  <el-form-item label="英文名称:" prop="englishName">
-                    <el-input v-model.trim="ruleForm.englishName" placeholder="请输入英文名称" clearable :disabled="isSee"></el-input>
+                  <el-form-item label="英文名称:" prop="enname">
+                    <el-input v-model.trim="ruleForm.enname" placeholder="请输入英文名称" clearable :disabled="isSee || isEdit"></el-input>
                   </el-form-item>
                 </el-col>
               </el-row>
 
               <el-row>
                 <el-col :span="24">
-                  <el-form-item label="角色描述:" prop="roleDescribe">
-                    <el-input v-model.trim="ruleForm.roleDescribe" placeholder="请输入角色描述" clearable :disabled="isSee"></el-input>
+                  <el-form-item label="角色描述:" prop="description">
+                    <el-input v-model.trim="ruleForm.description" placeholder="请输入角色描述" clearable :disabled="isSee"></el-input>
                   </el-form-item>
                 </el-col>
               </el-row>
 
               <el-row>
                 <el-col :span="12">
-                  <el-form-item label="数据范围:" prop="dataRange">
-                    <el-select v-model="ruleForm.dataRange" placeholder="请选择数据范围"  clearable :disabled="isSee">
-                      <el-option :label="item.label" :value="item.value" v-for="(item,index) in dictionaries.dataRangeList" :key="index"></el-option>
-                    </el-select>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="12">
                   <el-form-item label="角色类型:" prop="roleType">
-                    <el-select v-model="ruleForm.roleType" placeholder="请选择角色类型"  clearable :disabled="isSee">
+                    <el-select v-model="ruleForm.roleType" placeholder="请选择角色类型"  clearable :disabled="isSee || isEdit">
                       <el-option :label="item.label" :value="item.value" v-for="(item,index) in dictionaries.roleTypeList" :key="index"></el-option>
                     </el-select>
                   </el-form-item>
                 </el-col>
+                
               </el-row>
             </el-form>
             <el-row>
               <el-col :span="12">
-                <div class="filter">
-                  <span>权限过滤：</span>
-                  <el-input v-model="filterText" placeholder="输入关键字进行过滤" size="mini" prefix-icon="iconfont icon-guolv" @clear="filterClear" :disabled="isSee" clearable></el-input>
-                </div>
                 <div class="tree">
                   <p><span>*</span>权限:</p>
                   <!-- v-if="treeStatus" 手动销毁组件 防止数据不同步 -->
                   <el-tree ref="tree" class="filter-tree" accordion v-if="treeStatus"
-                    :data="data2" :props="defaultProps"
+                    :data="relationResList" :props="defaultProps"
                     :default-expanded-keys="defaultExpansion"
-                    show-checkbox node-key="id"
-                    :filter-node-method="filterNode">
+                    show-checkbox node-key="id">
                   </el-tree>
                 </div>
               </el-col>
@@ -81,16 +70,16 @@
       <el-table :data="tableData" border style="width: 100%;" height="100%" v-loading="tableLoading">
         <el-table-column type="index" width="50"></el-table-column>
         <el-table-column prop="roleName" label="角色名称"></el-table-column>
-        <el-table-column prop="englishName" label="英文名称"></el-table-column>
-        <el-table-column prop="dataRange" label="数据范围">
+        <el-table-column prop="enname" label="英文名称"></el-table-column>
+        <el-table-column prop="belongsSystem" label="所属系统">
           <template slot-scope="scope">
-            {{scope.row.dataRange | dictionariesFilter("dataRangeList", scope.row.dataRange)}}
+            {{scope.row.belongsSystem | dictionariesFilter("belongsSystemList", scope.row.belongsSystem)}}
           </template>
         </el-table-column>
-        <el-table-column prop="roleDescribe" label="角色描述"></el-table-column>
+        <el-table-column prop="description" label="角色描述"></el-table-column>
         <el-table-column prop="status" label="状态">
           <template slot-scope="scope">
-            <span :class="switchStatu(scope.row.status, 'enable','prohibit')">{{scope.row.status == 0 ? '禁用' : '启用'}}</span>
+            <span :class="switchStatu(scope.row.isEnable, 'enable','prohibit')">{{scope.row.isEnable == 0 ? '禁用' : '启用'}}</span>
           </template>
         </el-table-column>
 
@@ -101,10 +90,10 @@
             <el-button type="text" icon="el-icon-edit" size="mini" @click="showDialog(scope.row,'编辑')">编辑</el-button>
             <el-button
               type="text" size="mini"
-              :icon="switchStatu(scope.row.status, 'el-icon-close', 'el-icon-check')"
-              :class="switchStatu(scope.row.status, 'prohibit','enable')"
-              @click="enableDisabled(scope.$index, scope.row)"
-            >{{switchStatu(scope.row.status, '禁用', '启用') }}</el-button>
+              :icon="switchStatu(scope.row.isEnable, 'el-icon-close', 'el-icon-check')"
+              :class="switchStatu(scope.row.isEnable, 'prohibit','enable')"
+              @click="enableDisabled(scope.row)"
+            >{{switchStatu(scope.row.isEnable, '禁用', '启用') }}</el-button>
             <el-button type="text" class="danger" icon="el-icon-delete" size="mini" @click="deletItem(scope.row)">删除</el-button>
           </template>
         </el-table-column>
@@ -117,7 +106,7 @@
         @size-change="sizeChange"
         @current-change="currentChange"
         :current-page="paging.req.pageIndex"
-        :page-sizes="[10, 20, 30, 40]"
+        :page-sizes="[15, 20, 30, 40]"
         :page-size="paging.req.pageSize"
         layout="total, sizes, prev, pager, next, jumper"
         :total="paging.totalPage">
@@ -127,6 +116,7 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 export default {
   name: "role",
   data() {
@@ -134,105 +124,82 @@ export default {
       dialogStatus:false, //对话框
       dialogText:'', //对话框 title
       isSee:false, //是否查看
-
-      // tree
-      treeStatus:false,
-      filterText: '', //过滤
-      filterTempDefExp:[], //过滤恢复初始展开项
+      isEdit:false, //是否可编辑
       defaultExpansion:[], //tree 默认展开项
-      data2: [{
-        id: 1,
-        label: '功能菜单',
-        children: [{
-          id: 11,
-          label: '系统管理',
-          children: [{
-            id: 111,
-            label: '机构管理',
-            children: [{
-              id: 1111,
-              label: '查看',
-            },{
-              id: 1112,
-              label: '修改'
-            }]
-          }]
-        },{
-          id: 22,
-          label: '系统管理2',
-          children: [{
-            id: 222,
-            label: '机构管理',
-            children: [{
-              id: 2221,
-              label: '查看',
-            },{
-              id: 2222,
-              label: '修改'
-            }]
-          }]
-        }]
-      }],
       defaultProps: {
         children: 'children',
-        label: 'label',
+        label: 'name',
         disabled: () => this.isSee ? true : false
       },
+      // relationResList2:[{
+      //   id:1,
+      //   name:'用户关联',
+      //   parentId:0,
+      //   children:[{
+      //     id:2,
+      //     name:'用户列表',
+      //     parentId:1,
+      //     children:[{
+      //       id:4,
+      //       name:'查看',
+      //       parentId:2,
+      //     },{
+      //       id:5,
+      //       name:'修改',
+      //       parentId:2,
+      //     }]
+      //   },{
+      //     id:3,
+      //     name:'用户列表2',
+      //     parentId:1,
+      //     children:[{
+      //       id:6,
+      //       name:'查看',
+      //       parentId:3,
+      //     },{
+      //       id:7,
+      //       name:'修改',
+      //       parentId:3,
+      //     }]
+      //   }]
+      // }],
 
       // 表单
       ruleForm:{
         roleName:"", //角色名称
-        englishName:"", //英文名称
-        roleDescribe:"", //角色描述
-        dataRange:"", //数据范围
+        enname:"", //英文名称
+        description:"", //角色描述
+        belongsSystem:"", //所属系统
         roleType:"", //角色类型
-        rolePermissions: [] //角色权限
+        resourcesId: [], //角色权限(前端使用)
+        reqResourcesId: [] //角色权限(后端使用)
       },
       // 验证
       rules:{
         roleName:[{required: true, message: '请输入角色名称', trigger: 'blur'}],
-        englishName:[{required: true, message: '请输入英文名称', trigger: 'blur'}],
-        roleDescribe:[{required: true, message: '请输入角色描述', trigger: 'blur'}],
-        dataRange:[{required: true, message: '请输入数据范围', trigger: 'change'}],
+        enname:[{required: true, message: '请输入英文名称', trigger: 'blur'}],
+        description:[{required: true, message: '请输入角色描述', trigger: 'blur'}],
+        belongsSystem:[{required: true, message: '请输入数据范围', trigger: 'change'}],
         roleType:[{required: true, message: '请输入角色类型', trigger: 'change'}]
       },
 
+      // 关联资源列表 relationResList 来自计算属性
+
       // 表格
-      tableData: [
-        {
-          roleName: "业务总监",
-          englishName: "prodManager",
-          dataRange: "6",
-          roleDescribe: "公证",
-          roleType: "1",
-          rolePermissions: [1111,1112],
-          status: 1,
-          id:11
-        },
-        {
-          roleName: "产品经理",
-          englishName: "ChargeLeader",
-          dataRange: "5",
-          roleDescribe: "内勤主管",
-          roleType: "2",
-          rolePermissions: [1112,2221],
-          status: 0,
-          id:12
-        }
-      ]
+      tableData: []
     };
   },
-  created() { },
-
-  watch: {
-    filterText(val) {
-      this.$refs.tree.filter(val);
-    }
+  created() { 
+    this.apiMethod.getRole(this);
   },
+  computed:{
+    ...mapState(['relationResList'])
+  },
+
   methods: {
     // 禁用 / 启用
-    enableDisabled(index, scope) {
-      scope.status = scope.status == 1 ? 0 : 1;
+    enableDisabled(scope) {
+      this.apiMethod.disabledRole(this, scope)
     },
 
     // 显示对话框
@@ -243,94 +210,80 @@ export default {
       this.defaultExpansion = [1] //默认只展示第一级
 
       this.$nextTick(()=>{
+        this.isEdit = false;
+        this.isSee = false;
+
         if(title == '新增'){
           this.$nextTick(()=>{
 
           })
-          this.isSee = false;
         }else if(title == '查看'){
-          this.ruleForm = {...scope};
-          this.$nextTick(()=>{
-            this.defaultExpansion = scope.rolePermissions;
-            this.$refs.tree.setCheckedKeys(scope.rolePermissions);
-          })
+          this.isEdit = true;
           this.isSee = true;
 
-        }else if(title == '编辑'){
           this.ruleForm = {...scope};
           this.$nextTick(()=>{
-            this.defaultExpansion = scope.rolePermissions;
-            this.$refs.tree.setCheckedKeys(scope.rolePermissions);
-            this.filterTempDefExp = scope.rolePermissions;
+            this.defaultExpansion = scope.resourcesId;
+            // this.$refs.tree.setCheckedKeys(scope.resourcesId);
           })
-          console.log(this.ruleForm)
+
+        }else if(title == '编辑'){
+          this.isEdit = true;
           this.isSee = false;
+
+          this.ruleForm = {...scope};
+          this.$nextTick(()=>{
+            this.defaultExpansion = scope.resourcesId;
+            // this.$refs.tree.setCheckedKeys(scope.resourcesId);
+            // this.filterTempDefExp = scope.resourcesId;
+          })
         }
       });
-    },
-
-    // tree
-    filterNode(value, data) {
-      if (!value) return true;
-      return data.label.indexOf(value) !== -1;
     },
 
     //提交
     submit(){
       this.$refs['ruleForm'].validate((valid) => {
         if (valid) {
-          this.ruleForm.rolePermissions = this.$refs.tree.getCheckedKeys();
+          // 设置 tree 选中项 id
+          this.ruleForm.resourcesId = this.$refs.tree.getCheckedKeys();
+          this.ruleForm.reqResourcesId = [
+            ...this.$refs.tree.getHalfCheckedKeys(),
+            ...this.$refs.tree.getCheckedKeys()
+          ]
+          this.ruleForm.resourcesId = JSON.stringify(this.ruleForm.resourcesId);
+          this.ruleForm.reqResourcesId = JSON.stringify(this.ruleForm.reqResourcesId);
 
-          if(this.ruleForm.rolePermissions.length <= 0){
+          delete this.ruleForm.createdStamp;
+          
+          if(this.ruleForm.resourcesId.length <= 0){
             this.$message.error('请选择权限');
           }else{
             if(this.dialogText == '新增'){
-              console.log('新增')
+              this.ruleForm.resourcesId = JSON.stringify(this.ruleForm.resourcesId);
+              this.apiMethod.addRole(this);
             }else if(this.dialogText == '编辑'){
-              console.log('编辑')
+              delete this.ruleForm.belongsSystem; delete this.ruleForm.enname; delete this.ruleForm.roleType; delete this.ruleForm.description;
+              
+              console.log(this.ruleForm)
+              // this.apiMethod.editRole(this);
             }
-              // this.btnLoading = true;
-              // setTimeout(()=>{
-              //   this.btnLoading = false;
-              //   this.resetFn();
-              // },1000)
-            }
+          }
 
-      //   } else {
-      //     return false;
+        } else {
+          return false;
         }
       });
     },
 
     //删除
     deletItem(scope){
-      this.$confirm('您确定要删除吗?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        this.$message({
-          type: 'success',
-          message: '删除成功!'
-        });
-      })
+      this.apiMethod.deleteRole(this, scope)
     },
 
-    // 当清除 filterText时，恢复初始展开状态
-    filterClear(){
-      this.treeStatus = false;
-      setTimeout(() => {
-        this.treeStatus = true;
-        this.$nextTick(()=>{
-          if(this.dialogText == '编辑'){
-            this.defaultExpansion = this.filterTempDefExp;
-            this.$refs.tree.setCheckedKeys(this.filterTempDefExp);
-          }else if(this.dialogText == '新增'){
-            this.defaultExpansion = [1];
-            this.$refs.tree.setCheckedKeys([]);
-          }
-        })
-      });
+    // 触发分页
+    changePaging(){
+      this.apiMethod.getRole(this);
     }
   }
 };
@@ -357,14 +310,6 @@ export default {
     }
     .el-input{
       width: 100%;
-    }
-    .filter{
-      padding-left: 28px;
-      display: flex;
-      align-items: center;
-      .el-input{
-        width: 54%;
-      }
     }
     .tree{
       display: flex;

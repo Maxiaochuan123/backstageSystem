@@ -4,12 +4,13 @@ export default{
     return{
       btnLoading:false,
       tableLoading:false,
+      treeStatus:true,
 
       // 分页器
       paging:{
-        totalPage: 60,
+        totalPage: 0,
         req:{
-          pageSize: 10,
+          pageSize: 15,
           pageIndex: 1
         }
       }
@@ -30,7 +31,7 @@ export default{
   methods: {
     // 时间戳返回日期
     formatDate(row) {
-      return this.moment(row.createTime).format('YYYY-MM-DD');
+      return this.moment(row.createdStamp).format('YYYY-MM-DD');
     },
 
     // 取消
@@ -42,15 +43,18 @@ export default{
     resetFn(){
       this.$refs['ruleForm'].resetFields();
       this.dialogStatus = false;
+      this.btnLoading = false;
       this.treeStatus = false;
     },
 
     // 分页
     sizeChange(activePage){
-      console.log(activePage)
+      this.paging.req.pageSize = activePage;
+      this.changePaging();
     },
     currentChange(activePage){
-      console.log(activePage)
+      this.paging.req.pageIndex = activePage;
+      this.changePaging();
     }
   }
 }

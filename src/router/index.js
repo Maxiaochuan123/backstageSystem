@@ -11,7 +11,8 @@ const Welcome = () => import("../page/basics/welcome");
 
 // 管理
 const Region = () => import("../page/administration/region"); //区域管理
-const Organization = () => import("../page/administration/organization"); //组织架构
+const mechanism = () => import("../page/administration/mechanism"); //机构管理
+const menu = () => import("../page/administration/menu"); //菜单管理
 const Role = () => import("../page/administration/role"); //角色管理
 const User = () => import("../page/administration/user"); //用户管理
 
@@ -47,11 +48,18 @@ const router = new Router({
           }
         },
         {
-          path: "/organization",
-          name: "organization",
-          component: Organization,
+          path: "/mechanism",
+          name: "mechanism",
+          component: mechanism,
           meta: {
-            title: "组织架构"
+            title: "机构管理"
+          }
+        },{
+          path: "/menu",
+          name: "menu",
+          component: menu,
+          meta: {
+            title: "菜单管理"
           }
         },
         {

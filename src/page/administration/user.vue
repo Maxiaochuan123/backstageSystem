@@ -6,30 +6,30 @@
       <el-row class="sherchBar">
         <div>
           <span>搜索：</span>
-          <el-input v-model.trim="sherchForm.sherchInpt" placeholder="请输入用户名 / 姓名 / 手机号" size="medium" clearable></el-input>
+          <el-input v-model.trim="sherchForm.name" placeholder="请输入用户名 / 姓名 / 手机号" size="medium" clearable @clear="searchClear"></el-input>
         </div>
         <div>
           <span>所属机构：</span>
-          <el-select v-model="sherchForm.mechanism" placeholder="请选择所属机构" size="medium" clearable>
-            <el-option :label="item.label" :value="item.value" v-for="(item,index) in dictionaries.mechanismList" :key="index"></el-option>
+          <el-select v-model="sherchForm.companyId" placeholder="请选择所属机构" size="medium" @change="mechanismChange" clearable  @clear="searchClear">
+            <el-option :label="item.label" :value="item.value" v-for="(item,index) in getMechanismList" :key="index"></el-option>
           </el-select>
         </div>
         <div>
           <span>所属部门：</span>
-          <el-select v-model="sherchForm.department" placeholder="请选择所属部门" size="medium" clearable>
-            <el-option :label="item.label" :value="item.value" v-for="(item,index) in dictionaries.departmentList" :key="index"></el-option>
+          <el-select v-model="sherchForm.officeId" placeholder="请选择所属部门" size="medium" @change="departmentChange" clearable>
+            <el-option :label="item.label" :value="item.value" v-for="(item,index) in getDepartmentList" :key="index"></el-option>
           </el-select>
         </div>
         <div>
           <span>大区：</span>
-          <el-select v-model="sherchForm.largeArea" placeholder="请选择大区" size="medium" clearable>
-            <el-option :label="item.label" :value="item.value" v-for="(item,index) in dictionaries.largeAreaList" :key="index"></el-option>
+          <el-select v-model="sherchForm.geoId" placeholder="请选择大区" size="medium" clearable>
+            <el-option :label="item.label" :value="item.value" v-for="(item,index) in getLargeAreaList" :key="index"></el-option>
           </el-select>
         </div>
         <div>
           <span>用户角色：</span>
-          <el-select v-model="sherchForm.role" placeholder="请选择用户角色" size="medium" clearable>
-            <el-option :label="item.label" :value="item.value" v-for="(item,index) in dictionaries.userRoleList" :key="index"></el-option>
+          <el-select v-model="sherchForm.roleId" placeholder="请选择用户角色" size="medium" clearable>
+            <el-option :label="item.label" :value="item.value" v-for="(item,index) in userRoleList" :key="index"></el-option>
           </el-select>
         </div>
         <div class="serchBtn">
@@ -45,74 +45,74 @@
 
           <el-row>
             <el-col :span="12">
-              <el-form-item label="用户登录名:" prop="accountNumber">
-                <el-input v-model.trim="ruleForm.accountNumber" placeholder="请输入登录名" clearable :disabled="isSee"></el-input>
+              <el-form-item label="用户登录名:" prop="loginName">
+                <el-input v-model.trim="ruleForm.loginName" placeholder="请输入登录名" clearable :disabled="isSee"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="用户姓名:" prop="userName">
-                <el-input v-model.trim="ruleForm.userName" placeholder="请输入姓名" clearable :disabled="isSee"></el-input>
-              </el-form-item>
-            </el-col>
-          </el-row>
-
-          <el-row>
-            <el-col :span="12">
-              <el-form-item label="所属机构:" prop="mechanism">
-                <el-select v-model="ruleForm.mechanism" placeholder="请选择所属机构"  clearable :disabled="isSee">
-                  <el-option :label="item.label" :value="item.value" v-for="(item,index) in dictionaries.mechanismList" :key="index"></el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="手机号码:" prop="phoneNumber">
-                <el-input v-model.trim="ruleForm.phoneNumber" placeholder="请输入手机号码" clearable :disabled="isSee"></el-input>
+              <el-form-item label="用户姓名:" prop="name">
+                <el-input v-model.trim="ruleForm.name" placeholder="请输入姓名" clearable :disabled="isSee"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
 
           <el-row>
             <el-col :span="12">
-              <el-form-item label="所属部门:" prop="department">
-                <el-select v-model="ruleForm.department" placeholder="请选择所属部门"  clearable :disabled="isSee">
-                  <el-option :label="item.label" :value="item.value" v-for="(item,index) in dictionaries.departmentList" :key="index"></el-option>
+              <el-form-item label="所属机构:" prop="companyId">
+                <el-select v-model="ruleForm.companyId" placeholder="请选择所属机构" clearable @change="mechanismChange" :disabled="isSee">
+                  <el-option :label="item.label" :value="item.value" v-for="(item,index) in getMechanismList" :key="index"></el-option>
                 </el-select>
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="身份证号:" prop="idNumber">
-                <el-input v-model.trim="ruleForm.idNumber" placeholder="请输入身份证号" clearable :disabled="isSee"></el-input>
+              <el-form-item label="手机号码:" prop="mobile">
+                <el-input v-model.trim="ruleForm.mobile" placeholder="请输入手机号码" clearable :disabled="isSee"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
 
           <el-row>
             <el-col :span="12">
-              <el-form-item label="大区:" prop="largeArea">
-                <el-select v-model="ruleForm.largeArea" placeholder="请选择大区"  clearable :disabled="isSee">
-                  <el-option :label="item.label" :value="item.value" v-for="(item,index) in dictionaries.largeAreaList" :key="index"></el-option>
+              <el-form-item label="所属部门:" prop="officeId">
+                <el-select v-model="ruleForm.officeId" placeholder="请选择所属部门"  clearable :disabled="isSee">
+                  <el-option :label="item.label" :value="item.value" v-for="(item,index) in getDepartmentList" :key="index"></el-option>
                 </el-select>
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="工作电话:" prop="workPhone">
-                <el-input v-model.trim="ruleForm.workPhone" placeholder="请输入工作电话" clearable :disabled="isSee"></el-input>
+              <el-form-item label="身份证号:" prop="idcard">
+                <el-input v-model.trim="ruleForm.idcard" placeholder="请输入身份证号" clearable :disabled="isSee"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
 
           <el-row>
             <el-col :span="12">
-              <el-form-item label="用户角色:" prop="role">
-                <el-select v-model="ruleForm.role" placeholder="请选择用户角色"  clearable :disabled="isSee">
-                  <el-option :label="item.label" :value="item.value" v-for="(item,index) in dictionaries.userRoleList" :key="index"></el-option>
+              <el-form-item label="大区:" prop="geoId">
+                <el-select v-model="ruleForm.geoId" placeholder="请选择大区"  clearable :disabled="isSee">
+                  <el-option :label="item.label" :value="item.value" v-for="(item,index) in getLargeAreaList" :key="index"></el-option>
                 </el-select>
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="职位等级:" prop="jobRank">
-                <el-select v-model="ruleForm.jobRank" placeholder="请选择职位等级"  clearable :disabled="isSee">
-                  <el-option :label="item.label" :value="item.value" v-for="(item,index) in dictionaries.jobRankList" :key="index"></el-option>
+              <el-form-item label="工作电话:" prop="phone">
+                <el-input v-model.trim="ruleForm.phone" placeholder="请输入工作电话" clearable :disabled="isSee"></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+
+          <el-row>
+            <el-col :span="12">
+              <el-form-item label="用户角色:" prop="roleId">
+                <el-select v-model="ruleForm.roleId" placeholder="请选择用户角色"  clearable :disabled="isSee">
+                  <el-option :label="item.label" :value="item.value" v-for="(item,index) in userRoleList" :key="index"></el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="职位等级:" prop="userLevel">
+                <el-select v-model="ruleForm.userLevel" placeholder="请选择职位等级"  clearable :disabled="isSee">
+                  <el-option :label="item.label" :value="item.value" v-for="(item,index) in dictionaries.userLevelList" :key="index"></el-option>
                 </el-select>
               </el-form-item>
             </el-col>
@@ -120,8 +120,8 @@
 
           <el-row>
             <el-col :span="12">
-              <el-form-item label="工作职位:" prop="jobPosition">
-                <el-input v-model.trim="ruleForm.jobPosition" placeholder="请输入工作职位" clearable :disabled="isSee"></el-input>
+              <el-form-item label="工作职位:" prop="userJobposition">
+                <el-input v-model.trim="ruleForm.userJobposition" placeholder="请输入工作职位" clearable :disabled="isSee"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="12">
@@ -131,10 +131,10 @@
             </el-col>
           </el-row>
 
-          <el-row class="fastCarryTransfer">
+          <el-row class="quklftivoInd">
             <el-col :span="8">
-              <el-form-item label="快提快调" prop="fastCarryTransfer">
-                <el-radio-group v-model="ruleForm.fastCarryTransfer">
+              <el-form-item label="快提快调" prop="quklftivoInd">
+                <el-radio-group v-model="ruleForm.quklftivoInd" :disabled="isSee">
                   <el-radio :label="item.value" v-for="(item,index) in dictionaries.fastCarryTransferList" :key="index">{{item.label}}</el-radio>
                 </el-radio-group>
               </el-form-item>
@@ -152,43 +152,34 @@
     <div class="content">
       <el-table :data="tableData" border style="width: 100%;" height="100%" v-loading="tableLoading">
         <el-table-column type="index" width="50"></el-table-column>
-        <el-table-column prop="accountNumber" label="用户登录名"></el-table-column>
-        <el-table-column prop="userName" label="用户姓名"></el-table-column>
-        <el-table-column prop="phoneNumber" label="手机号码"></el-table-column>
-        <el-table-column prop="mechanism" label="所属机构">
+        <el-table-column prop="loginName" label="用户登录名"></el-table-column>
+        <el-table-column prop="name" label="用户姓名"></el-table-column>
+        <el-table-column prop="mobile" label="手机号码"></el-table-column>
+        <el-table-column prop="companyName" label="所属机构"></el-table-column>
+        <el-table-column prop="roleName" label="用户角色"></el-table-column>
+        <el-table-column prop="userLevel" label="职位等级">
           <template slot-scope="scope">
-            {{scope.row.mechanism | dictionariesFilter("mechanismList", scope.row.mechanism)}}
+            {{scope.row.userLevel | dictionariesFilter("userLevelList", scope.row.userLevel)}}
           </template>
         </el-table-column>
-        <el-table-column prop="role" label="用户角色">
-          <template slot-scope="scope">
-            {{scope.row.role | dictionariesFilter("userRoleList", scope.row.role)}}
-          </template>
-        </el-table-column>
-        <el-table-column prop="jobRank" label="职位等级">
-          <template slot-scope="scope">
-            {{scope.row.jobRank | dictionariesFilter("jobRankList", scope.row.jobRank)}}
-          </template>
-        </el-table-column>
-        <el-table-column prop="createTime" label="创建时间" :formatter="formatDate"></el-table-column>
+        <el-table-column prop="createdStamp" label="创建时间" :formatter="formatDate"></el-table-column>
         <el-table-column prop="status" label="状态">
           <template slot-scope="scope">
-            <span :class="switchStatu(scope.row.status, 'enable','prohibit')">{{scope.row.status == 0 ? '禁用' : '启用'}}</span>
+            <span :class="switchStatu(scope.row.isEnable, 'enable','prohibit')">{{scope.row.isEnable == 0 ? '禁用' : '启用'}}</span>
           </template>
         </el-table-column>
 
         <!-- 操作 -->
-        <el-table-column label="操作" width="240">
+        <el-table-column label="操作" width="180">
           <template slot-scope="scope">
             <el-button type="text" icon="el-icon-search" size="mini" @click="showDialog(scope.row,'查看')">查看</el-button>
             <el-button type="text" icon="el-icon-edit" size="mini" @click="showDialog(scope.row,'编辑')">编辑</el-button>
             <el-button
               type="text" size="mini"
-              :icon="switchStatu(scope.row.status, 'el-icon-close', 'el-icon-check')"
-              :class="switchStatu(scope.row.status, 'prohibit','enable')"
-              @click="enableDisabled(scope.$index, scope.row)"
-            >{{switchStatu(scope.row.status, '禁用', '启用') }}</el-button>
-            <el-button type="text" class="danger" icon="el-icon-delete" size="mini" @click="deletItem(scope.row)">删除</el-button>
+              :icon="switchStatu(scope.row.isEnable, 'el-icon-close', 'el-icon-check')"
+              :class="switchStatu(scope.row.isEnable, 'prohibit','enable')"
+              @click="enableDisabled(scope.row)"
+            >{{switchStatu(scope.row.isEnable, '禁用', '启用') }}</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -200,7 +191,7 @@
         @size-change="sizeChange"
         @current-change="currentChange"
         :current-page="paging.req.pageIndex"
-        :page-sizes="[10, 20, 30, 40]"
+        :page-sizes="[15, 20, 30, 40]"
         :page-size="paging.req.pageSize"
         layout="total, sizes, prev, pager, next, jumper"
         :total="paging.totalPage">
@@ -210,6 +201,7 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 export default {
   name: "user",
   data() {
@@ -217,94 +209,111 @@ export default {
       dialogStatus:false, //对话框
       dialogText:'', //对话框 title
       isSee:false, //是否查看
+      itemMechanism:0,
+      itemDepartment:0,
 
       sherchForm:{
-        sherchInpt:'', //用户名 / 姓名 / 手机号
-        mechanism:'', //所属机构
-        department:'', //所属部门
-        largeArea:'', //大区
-        role:'', //用户角色
+        name:'', //用户名 / 姓名 / 手机号
+        companyId:'', //所属机构
+        officeId:'', //所属部门
+        geoId:'', //大区
+        roleId:'' //用户角色
       },
 
       // 表单
       ruleForm:{
-        accountNumber:'', //用户登录名
-        userName:'', //用户姓名
-        mechanism:'', //所属机构
-        phoneNumber:'', //手机号码
-        department:'', //所属部门
-        idNumber:'', //身份证号
-        largeArea:'', //大区
-        workPhone:'', //工作电话
-        role:'', //用户角色
-        jobRank:'', //职位等级
-        jobPosition:'', //工作职位
+        loginName:'', //用户登录名
+        name:'', //用户姓名
+        companyId:'', //所属机构
+        mobile:'', //手机号码
+        officeId:'', //所属部门
+        idcard:'', //身份证号
+        geoId:'', //大区
+        phone:'', //工作电话
+        roleId:'', //用户角色
+        userLevel:'', //职位等级
+        userJobposition:'', //工作职位
         email:'', //电子邮箱
-        fastCarryTransfer:'', //快提快调
+        quklftivoInd:'', //快提快调
       },
       // 验证
       rules:{
-        accountNumber:[
+        loginName:[
           {required: true, message: '请输入用户登陆名', trigger: 'blur'},
           {pattern: /^[0-9a-zA-Z]+$/, message: '只能是 数字，字母', trigger: ['blur']}
         ],
-        userName:[{required: true, message: '请输入用户姓名', trigger: 'blur'}],
-        mechanism:[{required: true, message: '请输入所属机构', trigger: 'change'}],
-        phoneNumber:[{pattern: /^(13[0-9]|14[579]|15[0-3,5-9]|16[6]|17[0135678]|18[0-9]|19[89])\d{8}$/, message: '请输入正确的手机号', trigger: ['blur']}],
-        department:[{required: true, message: '请输入所属部门', trigger: 'change'}],
-        idNumber:[{pattern: /^[1-9]\d{7}((0\d)|(1[0-2]))(([0|1|2]\d)|3[0-1])\d{3}$|^[1-9]\d{5}[1-9]\d{3}((0\d)|(1[0-2]))(([0|1|2]\d)|3[0-1])\d{3}([0-9]|X)$/, message: '请输入正确的身份证号', trigger: ['blur']}],
-        largeArea:[{required: true, message: '请输入大区', trigger: 'change'}],
-        role:[{required: true, message: '请输入用户角色', trigger: 'change'}],
-        jobRank:[{required: true, message: '请输入职位等级', trigger: 'change'}]
+        name:[{required: true, message: '请输入用户姓名', trigger: 'blur'}],
+        companyId:[{required: true, message: '请选择所属机构', trigger: 'change'}],
+        mobile:[{required: true, pattern: /^(13[0-9]|14[579]|15[0-3,5-9]|16[6]|17[0135678]|18[0-9]|19[89])\d{8}$/, message: '请输入正确的手机号', trigger: ['blur']}],
+        officeId:[{required: true, message: '请选择所属部门', trigger: 'change'}],
+        idcard:[{pattern: /^[1-9]\d{7}((0\d)|(1[0-2]))(([0|1|2]\d)|3[0-1])\d{3}$|^[1-9]\d{5}[1-9]\d{3}((0\d)|(1[0-2]))(([0|1|2]\d)|3[0-1])\d{3}([0-9]|X)$/, message: '请输入正确的身份证号', trigger: ['blur']}],
+        geoId:[{required: true, message: '请选择大区', trigger: 'change'}],
+        roleId:[{required: true, message: '请选择用户角色', trigger: 'change'}],
+        userLevel:[{required: true, message: '请选择职位等级', trigger: 'change'}]
       },
 
       // 表格
-      tableData: [
-        {
-          accountNumber:'mxc', //用户登录名
-          userName:'马晓川', //用户姓名
-          mechanism:'2', //所属机构
-          phoneNumber:'13111866951', //手机号码
-          department:'2', //所属部门
-          idNumber:'511325199506070053 ', //身份证号
-          largeArea:'2', //大区
-          workPhone:'13111866951', //工作电话
-          role:'1', //用户角色
-          jobRank:'3', //职位等级
-          jobPosition:'3', //工作职位
-          email:'724503670@qq.com', //电子邮箱
-          fastCarryTransfer:'1', //快提快调
-          createTime: Date.now(), //创建时间
-          status: 1,
-          id:11
-        },
-        {
-          accountNumber:'mxc', //用户登录名
-          userName:'马大川', //用户姓名
-          mechanism:'1', //所属机构
-          phoneNumber:'13111866951', //手机号码
-          department:'1', //所属部门
-          idNumber:'511325199506070053 ', //身份证号
-          largeArea:'3', //大区
-          workPhone:'13111866951', //工作电话
-          role:'2', //用户角色
-          jobRank:'1', //职位等级
-          jobPosition:'2', //工作职位
-          email:'724503670@qq.com', //电子邮箱
-          fastCarryTransfer:'0', //快提快调
-          createTime: Date.now(), //创建时间
-          status: 0,
-          id:12
-        }
-      ]
+      tableData: []
     };
   },
-  created() { },
+  created() {
+    this.apiMethod.getUser(this);
+  },
+
+  computed:{
+    ...mapState(['mechanismList','userRoleList']),
+    
+    // 机构
+    getMechanismList(){
+      let itemList = [];
+      this.mechanismList.forEach(item => {
+        itemList.push({label:item.groupName,value:item.id});
+      })
+      return itemList
+    },
+    // 部门
+    getDepartmentList(){
+      let itemList = [];
+      this.mechanismList.forEach(item => {
+        if(item.id == this.ruleForm.companyId || item.id == this.itemMechanism){
+          item.children.forEach(item2 => {
+            itemList.push({label:item2.groupName,value:item2.id})
+          })
+        }
+      })
+      return itemList
+    },
+    // 大区
+    getLargeAreaList(){
+      let itemList = [];
+      this.mechanismList.forEach(item => {
+        item.children.forEach(item2 => {
+          if(item2.id == this.ruleForm.officeId || item2.id == this.itemDepartment){
+            item2.children.forEach(item3 => {
+              itemList.push({label:item3.groupName,value:item3.id})
+            })
+          }
+        })
+      })
+      return itemList
+    }
+  },
 
   methods: {
+    mechanismChange(val){
+      this.itemMechanism = val;
+      this.ruleForm.officeId = '';
+      this.ruleForm.geoId = '';
+      this.sherchForm.officeId = '';
+      this.sherchForm.geoId = '';
+    },
+    departmentChange(val){
+      this.itemDepartment = val;
+    },
+
     // 禁用 / 启用
-    enableDisabled(index, scope) {
-      scope.status = scope.status == 1 ? 0 : 1;
+    enableDisabled(scope) {
+      this.apiMethod.disabledUser(this, scope);
     },
     // 显示对话框
     showDialog(scope, title){
@@ -313,20 +322,13 @@ export default {
 
       this.$nextTick(()=>{
         if(title == '新增'){
-          let list = this.ruleForm;
-          for(let item in list){
-            item = ''
-          }
-          console.log('list：',list)
-
           this.isSee = false;
         }else if(title == '查看'){
-          this.ruleForm = {...scope};
           this.isSee = true;
+          this.apiMethod.getUserInfo(this, {userId:scope.id});
         }else if(title == '编辑'){
-          this.ruleForm = {...scope};
-          console.log(this.ruleForm)
           this.isSee = false;
+          this.apiMethod.getUserInfo(this, {userId:scope.id});
         }
       });
     },
@@ -334,18 +336,12 @@ export default {
     //提交
     submit(){
       this.$refs['ruleForm'].validate((valid) => {
-
         if (valid) {
           if(this.dialogText == '新增'){
-            console.log(this.ruleForm)
+            this.apiMethod.addUser(this);
           }else if(this.dialogText == '编辑'){
-            console.log(this.ruleForm)
+            this.apiMethod.editUser(this);
           }
-          // this.btnLoading = true;
-          // setTimeout(()=>{
-          //   this.btnLoading = false;
-          //   this.resetFn();
-          // },1000)
         } else {
           return false;
         }
@@ -354,26 +350,17 @@ export default {
 
     // 查询
     sherch(){
-      this.btnLoading = true;
-      setTimeout(()=>{
-        this.btnLoading = false;
-      },1000)
+      this.apiMethod.serchUserList(this);
     },
-
-    //删除
-    deletItem(scope){
-      this.$confirm('您确定要删除吗?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        this.$message({
-          type: 'success',
-          message: '删除成功!'
-        });
-      })
-    }
-
+    // 清空
+    searchClear(){
+      this.apiMethod.serchUserList(this);
+    },
+    
+    // 触发分页
+    changePaging(){
+      this.apiMethod.getUser(this);
+    },
   }
 };
 </script>
@@ -425,14 +412,14 @@ export default {
           width: 102px;
         }
       }
-      >div:nth-child(4){
-        width: 174px;
-        >span{
-          width: 64px;
-        }
-      }
+      // >div:nth-child(4){
+      //   width: 174px;
+      //   >span{
+      //     width: 64px;
+      //   }
+      // }
     }
-    .fastCarryTransfer{
+    .quklftivoInd{
       margin-left: -2px;
       .el-form-item__content{
         width: 100px;

@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <el-table :data="formatData" :row-style="showRow" v-bind="$attrs" style="width: 100%;" tooltip-effect="dark" >
+  <!-- <div> -->
+    <el-table :data="formatData"  style="width: 100%;" height="100%" :row-style="showRow" v-bind="$attrs" tooltip-effect="dark" >
       <el-table-column v-if="columns.length===0" width="80">
         <template slot-scope="scope">
           <span v-for="space in scope.row._level" class="ms-tree-space" :key="space"></span>
@@ -23,7 +23,7 @@
       </el-table-column>
       <slot></slot>
     </el-table>
-  </div>
+  <!-- </div> -->
 </template>
 
 <script>

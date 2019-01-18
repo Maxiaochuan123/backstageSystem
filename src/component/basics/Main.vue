@@ -45,9 +45,9 @@ export default {
   background-color: #f1f2f7;
   text-align: center;
   height: calc(100vh - 60px);
-  padding: 6px;
+  padding: 6px !important;
   position: relative;
-  overflow: hidden;
+  overflow: hidden !important;
   
   #contentBox {
     width: 100%;
@@ -71,22 +71,22 @@ export default {
     width: 0;
     display: none;
   }
-  // #contentBox::-webkit-scrollbar {
-  //   /*滚动条整体样式*/
-  //   width: 6px;
-  // }
+  .el-table__body-wrapper::-webkit-scrollbar {
+    /*滚动条整体样式*/
+    width: 6px;
+  }
 
-  // #contentBox::-webkit-scrollbar-thumb {
-  //   /*滚动条里面小方块*/
-  //   border-radius: 4px;
-  //   box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
-  //   background: #c0c0c0;
-  // }
+  .el-table__body-wrapper::-webkit-scrollbar-thumb {
+    /*滚动条里面小方块*/
+    border-radius: 4px;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+    background: #c0c0c0;
+  }
 
-  // #contentBox::-webkit-scrollbar-track {
-  //   /*滚动条里面轨道*/
-  //   box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
-  //   background: #ededed;
-  // }
+  .el-table__body-wrapper::-webkit-scrollbar-track {
+    /*滚动条里面轨道*/
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+    background: #ededed;
+  }
 }
 </style>

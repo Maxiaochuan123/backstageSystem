@@ -57,7 +57,7 @@ export default {
     return {
       headPortrait: this.imagesPath.headPortrait,
       dropdownMenuList: [
-        { icon: "icon-shezhi", text: "设置", disabled: true },
+        { icon: "icon-shezhi", text: "设置", disabled: false },
         { icon: "icon-suoping", text: "锁屏", disabled: false },
         { icon: "icon-tuichu", text: "退出", disabled: false }
       ],
@@ -119,7 +119,7 @@ export default {
   text-align: center;
   width: 100%;
   height: 60px;
-  padding: 0;
+  padding: 0 !important;
   display: flex;
   justify-content: space-between;
   z-index: 20;

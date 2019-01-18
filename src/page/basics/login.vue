@@ -4,6 +4,7 @@
       <div class="loginBox">
         <div class="loginItem">
           <div class="content">
+            
             <div class="logoBox">
               <div class="logo">
                 <img :src="companyLogo" alt>

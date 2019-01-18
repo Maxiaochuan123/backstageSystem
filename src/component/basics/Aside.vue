@@ -82,8 +82,8 @@ export default {
           routerLink:'region',
           icon:'iconfont icon-quyupaixu'
         },{
-          name:'组织架构',
-          routerLink:'organization',
+          name:'机构管理',
+          routerLink:'mechanism',
           icon:'iconfont icon-zuzhi'
         },{
           name:'角色管理',
@@ -93,6 +93,10 @@ export default {
           name:'用户管理',
           routerLink:'user',
           icon:'iconfont icon-jiaoseguanli'
+        },{
+          name:'菜单管理',
+          routerLink:'menu',
+          icon:'iconfont icon-caidan'
         }]
       }]
     };

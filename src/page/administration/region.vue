@@ -50,19 +50,6 @@
         </el-table-column>
       </tableTree>
     </div>
-    <!-- 分页 -->
-    <div class="paging">
-      <el-pagination
-        background
-        @size-change="sizeChange"
-        @current-change="currentChange"
-        :current-page="paging.req.pageIndex"
-        :page-sizes="[10, 20, 30, 40]"
-        :page-size="paging.req.pageSize"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="paging.totalPage">
-      </el-pagination>
-    </div>
   </div>
 </template>
 
@@ -101,23 +88,20 @@ export default {
   methods: {
     // 禁用 / 启用
     enableDisabled(scope) {
-      scope.isEnable = scope.isEnable == 1 ? 0 : 1;
-      // console.log(scope.row.parentId)
-      // this.api.changeStatus({geoId:scope.id}).then(res=>{
-      //   console.log(res);
-      // })
-      if(scope.children){
-        this.recursion(scope.children, scope);
-      }
+      // scope.isEnable = scope.isEnable == 1 ? 0 : 1;
+      this.apiMethod.disabledRegion(this, scope);
+      // if(scope.children){
+      //   this.recursion(scope.children, scope);
+      // }
     },
-    recursion(scopeChildren, scope){
-      scopeChildren.forEach(item => {
-        item.isEnable = scope.isEnable == 1 ? 1 : 0;
-        if(item.children){
-          this.recursion(item.children, scope);
-        }
-      })
-    },
+    // recursion(scopeChildren, scope){
+    //   scopeChildren.forEach(item => {
+    //     item.isEnable = scope.isEnable == 1 ? 1 : 0;
+    //     if(item.children){
+    //       this.recursion(item.children, scope);
+    //     }
+    //   })
+    // },
 
     // 显示对话框
     showDialog(title, scope, btnText){
@@ -150,18 +134,23 @@ export default {
       this.$refs['ruleForm'].validate((valid) => {
         if (valid) {
           if(this.btnText == '编辑'){
-            this.apiMethod.editRegion(this, this.api.editRegion);
+            this.apiMethod.editRegion(this);
           }else if(this.btnText == '新增' && this.dialogText == '大区'){
-            this.apiMethod.addRegion(this, this.api.addRegion);
+            this.apiMethod.addRegion(this);
 
           }else if(this.btnText == '新增' && this.dialogText == '省份'){
-            this.apiMethod.addRegion(this, this.api.addRegion);
+            this.apiMethod.addRegion(this);
           }
         } else {
           return false;
         }
       });
-    }
+    },
+
+    // 触发分页
+    changePaging(){
+      this.apiMethod.getRegion(this);
+    },
   }
 };
 </script>
@@ -189,7 +178,7 @@ export default {
 
   .content{
     overflow-y: none;
-    height: calc(100vh - 164px);
+    height: calc(100vh - 124px);
     background-color: #fff;
 
     .statusChildren{
@@ -201,21 +190,8 @@ export default {
     .enable {
       color: #67c23a;
     }
-  }
-
-  .paging{
-    width: 100%;
-    padding: 4px;
-    background-color: #fff;
-    display: flex;
-    flex-direction: row-reverse;
-    .el-pagination{
-      min-width: 23%;
-      margin-right: 10px;
-      z-index: 100;
-    }
-    .el-pagination__jump{
-      margin-left: 0px;
+    .el-table__body-wrapper{
+      overflow-y: auto;
     }
   }
 
