@@ -1,6 +1,6 @@
 <template>
 <!-- 用户管理 -->
-  <div class="user">
+  <div class="user mainBox">
     <!-- 操作栏 -->
     <div class="actionBar">
       <el-row class="sherchBar">
@@ -11,19 +11,19 @@
         <div>
           <span>所属机构：</span>
           <el-select v-model="sherchForm.companyId" placeholder="请选择所属机构" size="medium" @change="mechanismChange" clearable  @clear="searchClear">
-            <el-option :label="item.label" :value="item.value" v-for="(item,index) in getMechanismList" :key="index"></el-option>
+            <el-option :label="item.label" :value="item.value" v-for="(item,index) in getMechanismList" :key="index" :disabled="item.isEnable == 1"></el-option>
           </el-select>
         </div>
         <div>
           <span>所属部门：</span>
           <el-select v-model="sherchForm.officeId" placeholder="请选择所属部门" size="medium" @change="departmentChange" clearable>
-            <el-option :label="item.label" :value="item.value" v-for="(item,index) in getDepartmentList" :key="index"></el-option>
+            <el-option :label="item.label" :value="item.value" v-for="(item,index) in getDepartmentList" :key="index" :disabled="item.isEnable == 1"></el-option>
           </el-select>
         </div>
         <div>
           <span>大区：</span>
           <el-select v-model="sherchForm.geoId" placeholder="请选择大区" size="medium" clearable>
-            <el-option :label="item.label" :value="item.value" v-for="(item,index) in getLargeAreaList" :key="index"></el-option>
+            <el-option :label="item.label" :value="item.value" v-for="(item,index) in getLargeAreaList" :key="index" :disabled="item.isEnable == 1"></el-option>
           </el-select>
         </div>
         <div>
@@ -34,10 +34,9 @@
         </div>
         <div class="serchBtn">
           <el-button type="primary" plain icon="el-icon-search" size="small" :loading="btnLoading" @click="sherch">查询</el-button>
+          <el-button plain size="small" @click="clearSerch">重置</el-button>
         </div>
-        <div class="addBtn">
-          <el-button type="primary" icon="el-icon-plus" class="addBtn" size="small" @click="showDialog('','新增')">新增用户</el-button>
-        </div>
+        <el-button type="primary" icon="el-icon-plus" class="addBtn2" size="small" @click="showDialog('','新增')">新增用户</el-button>
       </el-row>
       <!-- 对话框 -->
       <el-dialog :title="`${dialogText}用户`" :visible.sync="dialogStatus" @close="closeDialog">
@@ -60,7 +59,7 @@
             <el-col :span="12">
               <el-form-item label="所属机构:" prop="companyId">
                 <el-select v-model="ruleForm.companyId" placeholder="请选择所属机构" clearable @change="mechanismChange" :disabled="isSee">
-                  <el-option :label="item.label" :value="item.value" v-for="(item,index) in getMechanismList" :key="index"></el-option>
+                  <el-option :label="item.label" :value="item.value" v-for="(item,index) in getMechanismList" :key="index" :disabled="item.isEnable == 1"></el-option>
                 </el-select>
               </el-form-item>
             </el-col>
@@ -75,7 +74,7 @@
             <el-col :span="12">
               <el-form-item label="所属部门:" prop="officeId">
                 <el-select v-model="ruleForm.officeId" placeholder="请选择所属部门"  clearable :disabled="isSee">
-                  <el-option :label="item.label" :value="item.value" v-for="(item,index) in getDepartmentList" :key="index"></el-option>
+                  <el-option :label="item.label" :value="item.value" v-for="(item,index) in getDepartmentList" :key="index" :disabled="item.isEnable == 1"></el-option>
                 </el-select>
               </el-form-item>
             </el-col>
@@ -90,7 +89,7 @@
             <el-col :span="12">
               <el-form-item label="大区:" prop="geoId">
                 <el-select v-model="ruleForm.geoId" placeholder="请选择大区"  clearable :disabled="isSee">
-                  <el-option :label="item.label" :value="item.value" v-for="(item,index) in getLargeAreaList" :key="index"></el-option>
+                  <el-option :label="item.label" :value="item.value" v-for="(item,index) in getLargeAreaList" :key="index" :disabled="item.isEnable == 1"></el-option>
                 </el-select>
               </el-form-item>
             </el-col>
@@ -105,7 +104,7 @@
             <el-col :span="12">
               <el-form-item label="用户角色:" prop="roleId">
                 <el-select v-model="ruleForm.roleId" placeholder="请选择用户角色"  clearable :disabled="isSee">
-                  <el-option :label="item.label" :value="item.value" v-for="(item,index) in userRoleList" :key="index"></el-option>
+                  <el-option :label="item.label" :value="item.value" v-for="(item,index) in userRoleList" :key="index" :disabled="item.isEnable == 1"></el-option>
                 </el-select>
               </el-form-item>
             </el-col>
@@ -165,7 +164,7 @@
         <el-table-column prop="createdStamp" label="创建时间" :formatter="formatDate"></el-table-column>
         <el-table-column prop="status" label="状态">
           <template slot-scope="scope">
-            <span :class="switchStatu(scope.row.isEnable, 'enable','prohibit')">{{scope.row.isEnable == 0 ? '禁用' : '启用'}}</span>
+            <span :class="switchStatu(scope.row.isEnable, 'prohibit','enable')">{{scope.row.isEnable == 0 ? '启用' : '禁用'}}</span>
           </template>
         </el-table-column>
 
@@ -176,10 +175,10 @@
             <el-button type="text" icon="el-icon-edit" size="mini" @click="showDialog(scope.row,'编辑')">编辑</el-button>
             <el-button
               type="text" size="mini"
-              :icon="switchStatu(scope.row.isEnable, 'el-icon-close', 'el-icon-check')"
-              :class="switchStatu(scope.row.isEnable, 'prohibit','enable')"
+              :icon="switchStatu(scope.row.isEnable, 'el-icon-check', 'el-icon-close')"
+              :class="switchStatu(scope.row.isEnable, 'enable','prohibit')"
               @click="enableDisabled(scope.row)"
-            >{{switchStatu(scope.row.isEnable, '禁用', '启用') }}</el-button>
+            >{{switchStatu(scope.row.isEnable, '启用', '禁用') }}</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -194,7 +193,7 @@
         :page-sizes="[15, 20, 30, 40]"
         :page-size="paging.req.pageSize"
         layout="total, sizes, prev, pager, next, jumper"
-        :total="paging.totalPage">
+        :total="paging.totalCount">
       </el-pagination>
     </div>
   </div>
@@ -267,7 +266,7 @@ export default {
     getMechanismList(){
       let itemList = [];
       this.mechanismList.forEach(item => {
-        itemList.push({label:item.groupName,value:item.id});
+        itemList.push({label:item.groupName,value:item.id,isEnable:item.isEnable});
       })
       return itemList
     },
@@ -277,10 +276,11 @@ export default {
       this.mechanismList.forEach(item => {
         if(item.id == this.ruleForm.companyId || item.id == this.itemMechanism){
           item.children.forEach(item2 => {
-            itemList.push({label:item2.groupName,value:item2.id})
+            itemList.push({label:item2.groupName,value:item2.id,isEnable:item2.isEnable})
           })
         }
       })
+      console.log(itemList)
       return itemList
     },
     // 大区
@@ -290,7 +290,7 @@ export default {
         item.children.forEach(item2 => {
           if(item2.id == this.ruleForm.officeId || item2.id == this.itemDepartment){
             item2.children.forEach(item3 => {
-              itemList.push({label:item3.groupName,value:item3.id})
+              itemList.push({label:item3.groupName,value:item3.id,isEnable:item3.isEnable})
             })
           }
         })
@@ -352,6 +352,16 @@ export default {
     sherch(){
       this.apiMethod.serchUserList(this);
     },
+    // 清空筛选条件
+    clearSerch(){
+      let sherchForm = this.sherchForm;
+      for(let item in sherchForm){
+        sherchForm[item] = '';
+      }
+      this.sherchForm = sherchForm;
+      this.apiMethod.getUser(this);
+    },
+
     // 清空
     searchClear(){
       this.apiMethod.serchUserList(this);
@@ -366,24 +376,7 @@ export default {
 </script>
 <style lang="scss">
 .user {
-  height: calc(100vh - 72px);
-
   .actionBar {
-    width: 100%;
-    height: 44px;
-    background-color: #fff;
-    margin-bottom: 6px;
-    box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.1);
-    .row {
-      padding-top: 6px;
-    }
-    .el-input, .el-select{
-      width: 100%;
-    }
-    .addBtn{
-      position: absolute;
-      right: 5px;
-    }
     .el-input{
       width: 100%;
     }
@@ -394,7 +387,7 @@ export default {
       >div{
         display: flex;
         align-items: center;
-        padding-left: 10px;
+        padding-left:20px;
         >span{
           color: #606266;
           font-size: 14px;
@@ -412,19 +405,23 @@ export default {
           width: 102px;
         }
       }
-      // >div:nth-child(4){
-      //   width: 174px;
-      //   >span{
-      //     width: 64px;
-      //   }
-      // }
+      >div:nth-child(4){
+        width: 202px;
+        >span{
+          width: 64px;
+        }
+      }
     }
     .quklftivoInd{
       margin-left: -2px;
       .el-form-item__content{
-        width: 100px;
+        // width: 100px;
         .el-radio-group{
+          .el-radio{
+            margin-right:0;
+          }
           label:last-child{
+            margin-top: 12px;
             margin-left: 20px;
           }
         }
@@ -433,45 +430,11 @@ export default {
   }
 
   .content{
-    overflow-y: none;
-    height: calc(100vh - 164px);
-    background-color: #fff;
-
-    .prohibit {
-      color: #f56c6c;
-    }
-    .enable {
-      color: #67c23a;
-    }
-    .danger{
-      color: #ff0000;
-    }
+    height: calc(100% - 70px - 40px)!important;
   }
 
-  .paging{
-    width: 100%;
-    padding: 4px;
-    background-color: #fff;
-    display: flex;
-    flex-direction: row-reverse;
-    .el-pagination{
-      min-width: 23%;
-      margin-right: 10px;
-    }
-    .el-pagination__jump{
-      margin-left: 0px;
-    }
-  }
-
-  .el-form-item__content::after,
-  .el-form-item__content::before {
-    content: none;
-  }
-  .el-table__expanded-cell[class*="cell"] {
-    padding: 4px 98px 4px 70px;
-  }
   .el-dialog{
-    width: 36%;
+    width: 36%!important;
   }
 }
 </style>

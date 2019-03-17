@@ -1,6 +1,6 @@
 <template>
 <!-- 菜单管理 -->
-  <div class="region">
+  <div class="menu mainBox">
     <!-- 操作栏 -->
     <div class="actionBar">
       <el-row class="row">
@@ -39,8 +39,10 @@
           <!-- 主对话框 -->
           <el-dialog :title="btnText == '新增'? `新增${dialogText}` : `编辑${dialogText}`" :visible.sync="dialogStatus" @close="closeDialog">
             <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
-              <el-form-item label="上级菜单:" prop="supName" class="superIcon">
-                <el-input v-model="supName" @focus="showSupDialog" placeholder="请选择上级菜单" clearable> <el-button slot="append" icon="el-icon-search"></el-button></el-input>
+              <el-form-item label="上级菜单:" prop="supName" class="superIcon" v-if="dialogText == '子菜单' || btnText == '编辑'">
+                <el-input v-model="supName" @focus="showSupDialog" placeholder="请选择上级菜单" :disabled="isMainMenu" clearable>
+                  <el-button slot="append" icon="el-icon-search" @click="supDialogStatus = true"></el-button>
+                </el-input>
               </el-form-item>
               <el-form-item label="名称:" prop="name">
                 <el-input v-model="ruleForm.name" placeholder="请输入菜单名称" clearable></el-input>
@@ -49,7 +51,9 @@
                 <el-input v-model="ruleForm.url" placeholder="请输入链接" clearable></el-input>
               </el-form-item>
               <el-form-item label="图标:" prop="icon" class="iconIcon">
-                <el-input v-model="ruleForm.icon" @focus="showIconDialog" placeholder="请选择菜单图标" clearable> <el-button slot="append" icon="iconfont icon-xuanze"></el-button></el-input>
+                <el-input v-model="ruleForm.icon" @focus="showIconDialog" placeholder="请选择菜单图标" clearable>
+                  <el-button slot="append" icon="iconfont icon-xuanze" @click="iconDialogStatus = true"></el-button>
+                </el-input>
               </el-form-item>
               <el-form-item label="排序:" prop="sort">
                 <el-input v-model="ruleForm.sort" placeholder="请输入排序权重" clearable></el-input>
@@ -68,41 +72,33 @@
     <!-- 表格 -->
     <div class="content">
       <tableTree :data="tableData" border v-loading="tableLoading">
-        <el-table-column label="名称" prop="name"></el-table-column>
+        <el-table-column label="名称" prop="name">
+          <template slot-scope="scope">
+            <i :class="scope.row.icon"></i>
+            <span>{{scope.row.name}}</span>
+          </template>
+        </el-table-column>
         <el-table-column label="链接" prop="url"></el-table-column>
         <el-table-column label="排序" prop="sort"></el-table-column>
-        <el-table-column prop="isEnable" label="状态">
+        <el-table-column label="状态" prop="isEnable">
           <template slot-scope="scope">
-            <span :class="switchStatu(scope.row.isEnable, 'enable','prohibit')">{{scope.row.isEnable == 0 ? '禁用' : '启用'}}</span>
+            <span :class="switchStatu(scope.row.isEnable, 'prohibit','enable')">{{scope.row.isEnable == 0 ? '启用' : '禁用'}}</span>
           </template>
         </el-table-column>
 
         <el-table-column label="操作" width="220">
           <template slot-scope="scope">
-            <el-button type="text" icon="el-icon-edit" size="mini" @click="showDialog('菜单',scope.row,'编辑')">编辑</el-button>
+            <el-button type="text" icon="el-icon-edit" size="mini" @click="showDialog('菜单', scope.row, '编辑')">编辑</el-button>
             <el-button
               type="text" size="mini"
-              :icon="switchStatu(scope.row.isEnable, 'el-icon-close', 'el-icon-check')"
-              :class="switchStatu(scope.row.isEnable, 'prohibit','enable')"
+              :icon="switchStatu(scope.row.isEnable, 'el-icon-check', 'el-icon-close')"
+              :class="switchStatu(scope.row.isEnable, 'enable','prohibit')"
               @click="enableDisabled(scope.row)"
-            >{{switchStatu(scope.row.isEnable, '禁用', '启用') }}</el-button>
-            <el-button type="text" icon="el-icon-plus" size="mini" @click="showDialog('子菜单',scope.row,'新增')">新增子菜单</el-button>
+            >{{switchStatu(scope.row.isEnable, '启用', '禁用') }}</el-button>
+            <el-button type="text" icon="el-icon-plus" size="mini" @click="showDialog('子菜单', scope.row, '新增')">新增子菜单</el-button>
           </template>
         </el-table-column>
       </tableTree>
-    </div>
-    <!-- 分页 -->
-    <div class="paging">
-      <el-pagination
-        background
-        @size-change="sizeChange"
-        @current-change="currentChange"
-        :current-page="paging.req.pageIndex"
-        :page-sizes="[15, 20, 30, 40]"
-        :page-size="paging.req.pageSize"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="paging.totalPage">
-      </el-pagination>
     </div>
   </div>
 </template>
@@ -122,11 +118,11 @@ export default {
       iconDialogStatus:false, //选择上级对话框
       dialogText:'', //对话框 title
       btnText:'', //按钮文字
-      defaultExpansion:[], //tree 默认展开项
+      isMainMenu: false, //是否添加主菜单
+      defaultExpansion:[0], //tree 默认展开项
       defaultProps: {
         children: 'children',
-        label: 'name',
-        disabled: () => this.isSee ? true : false
+        label: 'name'
       },
       filterText:'',
       supNameItem:'',
@@ -169,17 +165,27 @@ export default {
   methods: {
     // 禁用 / 启用
     enableDisabled(scope) {
-      scope.isEnable = scope.isEnable == 1 ? 0 : 1;
-      this.apiMethod.changeStatus(this, scope);
-      if(scope.children){
-        this.recursion(scope.children, scope);
-      }
+      this.apiMethod.disabledMenu(this, scope);
+      setTimeout(()=>{
+        this.getRelationRes();
+        this.getUserMenu();
+      },500);
     },
+
     recursion(scopeChildren, scope){
       scopeChildren.forEach(item => {
-        item.isEnable = scope.isEnable == 1 ? 1 : 0;
-        if(item.children){
-          this.recursion(item.children, scope);
+        if(scope.parentId == item.id){
+          return this.supName = this.btnText == '新增' ? scope.name : item.name;
+        }else{
+          if(item.children){
+            this.recursion(item.children, scope);
+          }
+          
+          if(this.btnText == '新增'){
+            return this.supName = scope.name;
+          }else{
+            return this.supName = scope.parent ? scope.parent.name : '';
+          }
         }
       })
     },
@@ -189,15 +195,19 @@ export default {
       this.dialogStatus = true;
       this.dialogText = title;
       this.btnText = btnText;
-      
+      this.isMainMenu = true;
+      this.supName = '';
+
       this.$nextTick(()=>{
         if(btnText == '编辑'){
           this.ruleForm = {...scope};
-
+          this.recursion(this.tableData, scope);
         }else if(btnText == '新增' && title == '菜单'){
-          
+          this.isMainMenu = false;
+          this.ruleForm.parentId = 0;
         }else if(btnText == '新增' && title == '子菜单'){
-          
+          this.ruleForm.parentId = scope.id;
+          this.recursion(this.tableData, scope);
         }
       });
 
@@ -207,11 +217,6 @@ export default {
     showSupDialog(){
       this.supDialogStatus = true;
       this.treeStatus = true;
-      this.defaultExpansion = [1] //默认只展示第一级
-
-      this.$nextTick(()=>{
-
-      })
     },
     //tree
     filterNode(value, data) {
@@ -220,7 +225,7 @@ export default {
     },
     // tree单选
     checkFn(node, data) {
-      this.supNameItem = node.name
+      this.supNameItem = node.name;
       this.ruleForm.parentId = node.id;
       let checkedKeys = data.checkedKeys;
       let currKey = node.id;
@@ -231,8 +236,6 @@ export default {
       this.treeStatus = false;
       setTimeout(() => {
         this.treeStatus = true;
-        this.defaultExpansion = [1];
-        // this.$refs.tree.setCheckedKeys([]);
       });
     },
 
@@ -269,14 +272,20 @@ export default {
     //提交
     submit(){
       this.$refs['ruleForm'].validate((valid) => {
-        console.log(this.ruleForm);
         if (valid) {
           if(this.btnText == '编辑'){
-            
-          }else if(this.btnText == '新增' && this.dialogText == '菜单'){
-            
-          }else if(this.btnText == '新增' && this.dialogText == '子菜单'){
-            
+            delete this.ruleForm.children; delete this.ruleForm._expanded; delete this.ruleForm._level; delete this.ruleForm._show; delete this.ruleForm.parent;
+            this.apiMethod.editMenu(this);
+            setTimeout(()=>{
+              this.getRelationRes();
+              this.getUserMenu();
+            },500);
+          }else if(this.btnText == '新增' && (this.dialogText == '菜单' || this.dialogText == '子菜单')){
+            this.apiMethod.addMenu(this);
+            setTimeout(()=>{
+              this.getRelationRes();
+              this.getUserMenu();
+            },500);
           }
         } else {
           return false;
@@ -287,22 +296,8 @@ export default {
 };
 </script>
 <style lang="scss">
-.region {
-  height: calc(100vh - 72px);
-
+.menu {
   .actionBar {
-    width: 100%;
-    height: 44px;
-    background-color: #fff;
-    margin-bottom: 6px;
-    box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.1);
-    .row {
-      padding-top: 6px;
-    }
-    .addBtn{
-      position: absolute;
-      right: 10px;
-    }
     .el-input{
       width: 90%;
     }
@@ -341,67 +336,25 @@ export default {
         flex-wrap: wrap;
         justify-content: space-between;
       }
-      .el-button .is-circle{
-        width: 50px;
-        height: 50px;
+      .el-button{
+        .is-circle{
+          width: 50px;
+          height: 50px;
+        }
+        .iconfont{
+          font-size: 18px;
+        }
       }
       .el-dialog{
-        width: 15%;
+        width: 15%!important;
         .el-dialog__body{
           padding: 20px 20px;
         }
       }
     }
   }
-
-  .content{
-    overflow-y: none;
-    height: calc(100vh - 164px);
-    background-color: #fff;
-
-    .statusChildren{
-      margin-right: 40px;
-    }
-    .prohibit {
-      color: #f56c6c;
-    }
-    .enable {
-      color: #67c23a;
-    }
-    .el-table__body-wrapper{
-      overflow-y: auto;
-    }
-  }
-
-  .paging{
-    width: 100%;
-    padding: 4px;
-    background-color: #fff;
-    display: flex;
-    flex-direction: row-reverse;
-    .el-pagination{
-      min-width: 23%;
-      margin-right: 10px;
-      z-index: 100;
-    }
-    .el-pagination__jump{
-      margin-left: 0px;
-    }
-  }
-
-  .el-form-item__content {
-    display: flex;
-    justify-content: space-between;
-  }
-  .el-form-item__content::after,
-  .el-form-item__content::before {
-    content: none;
-  }
-  .el-table__expanded-cell[class*="cell"] {
-    padding: 4px 98px 4px 70px;
-  }
   .el-dialog{
-    width: 28%;
+    width: 28%!important;
   }
 }
 </style>

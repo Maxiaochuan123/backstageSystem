@@ -6,7 +6,7 @@ import router from './router';
 import moment from 'moment'
 
 import ElementUI from 'element-ui';
-// import 'element-ui/lib/theme-chalk/index.css';
+import 'element-ui/lib/theme-chalk/index.css';
 import './assets/iconfont/iconfont.css';
 
 import store from './vuex/store';

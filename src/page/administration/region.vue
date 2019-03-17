@@ -1,6 +1,6 @@
 <template>
 <!-- 区域管理 -->
-  <div class="region">
+  <div class="region mainBox">
     <!-- 操作栏 -->
     <div class="actionBar">
       <el-row class="row">
@@ -32,7 +32,7 @@
         <el-table-column label="区域分类" prop="areaName"></el-table-column>
         <el-table-column prop="status" label="状态">
           <template slot-scope="scope">
-            <span :class="switchStatu(scope.row.isEnable, 'enable','prohibit')">{{scope.row.isEnable == 0 ? '禁用' : '启用'}}</span>
+            <span :class="switchStatu(scope.row.isEnable, 'prohibit','enable')">{{scope.row.isEnable == 0 ? '启用' : '禁用'}}</span>
           </template>
         </el-table-column>
 
@@ -41,10 +41,10 @@
             <el-button type="text" icon="el-icon-edit" size="mini" @click="showDialog('省份',scope.row,'编辑')">编辑</el-button>
             <el-button
               type="text" size="mini"
-              :icon="switchStatu(scope.row.isEnable, 'el-icon-close', 'el-icon-check')"
-              :class="switchStatu(scope.row.isEnable, 'prohibit','enable')"
+              :icon="switchStatu(scope.row.isEnable, 'el-icon-check', 'el-icon-close')"
+              :class="switchStatu(scope.row.isEnable, 'enable','prohibit')"
               @click="enableDisabled(scope.row)"
-            >{{switchStatu(scope.row.isEnable, '禁用', '启用') }}</el-button>
+            >{{switchStatu(scope.row.isEnable, '启用', '禁用') }}</el-button>
             <el-button type="text" icon="el-icon-plus" size="mini" @click="showDialog('大区',scope.row,'新增')" v-if="scope.row.parentId == 0">新增大区</el-button>
           </template>
         </el-table-column>
@@ -88,20 +88,14 @@ export default {
   methods: {
     // 禁用 / 启用
     enableDisabled(scope) {
-      // scope.isEnable = scope.isEnable == 1 ? 0 : 1;
-      this.apiMethod.disabledRegion(this, scope);
-      // if(scope.children){
-      //   this.recursion(scope.children, scope);
-      // }
+      let isEnable = scope.parent ? scope.parent.isEnable : '';
+      if(isEnable == 1){
+        this.$message.warning('父级禁用状态下, 子级不可修改状态!')
+      }else{
+        this.apiMethod.disabledRegion(this, scope);
+        setTimeout(()=>{this.getRegion()},500);
+      }
     },
-    // recursion(scopeChildren, scope){
-    //   scopeChildren.forEach(item => {
-    //     item.isEnable = scope.isEnable == 1 ? 1 : 0;
-    //     if(item.children){
-    //       this.recursion(item.children, scope);
-    //     }
-    //   })
-    // },
 
     // 显示对话框
     showDialog(title, scope, btnText){
@@ -112,6 +106,7 @@ export default {
 
       this.$nextTick(()=>{
         if(btnText == '编辑'){
+          console.log(scope)
           this.ruleForm.areaName = scope.areaName;
           this.ruleForm.geoId = scope.id;
           delete this.ruleForm.parentId ? this.ruleForm.parentId : '';
@@ -135,76 +130,25 @@ export default {
         if (valid) {
           if(this.btnText == '编辑'){
             this.apiMethod.editRegion(this);
-          }else if(this.btnText == '新增' && this.dialogText == '大区'){
+            setTimeout(()=>{this.getRegion()},500);
+          }else if(this.btnText == '新增' && (this.dialogText == '大区' || this.dialogText == '省份')){
             this.apiMethod.addRegion(this);
-
-          }else if(this.btnText == '新增' && this.dialogText == '省份'){
-            this.apiMethod.addRegion(this);
+            setTimeout(()=>{this.getRegion()},500);
           }
         } else {
           return false;
         }
       });
-    },
-
-    // 触发分页
-    changePaging(){
-      this.apiMethod.getRegion(this);
-    },
+    }
   }
 };
 </script>
 <style lang="scss">
 .region {
-  height: calc(100vh - 72px);
-
   .actionBar {
-    width: 100%;
-    height: 44px;
-    background-color: #fff;
-    margin-bottom: 6px;
-    box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.1);
-    .row {
-      padding-top: 6px;
-    }
-    .addBtn{
-      position: absolute;
-      right: 10px;
-    }
     .el-input{
       width: 90%;
     }
-  }
-
-  .content{
-    overflow-y: none;
-    height: calc(100vh - 124px);
-    background-color: #fff;
-
-    .statusChildren{
-      margin-right: 40px;
-    }
-    .prohibit {
-      color: #f56c6c;
-    }
-    .enable {
-      color: #67c23a;
-    }
-    .el-table__body-wrapper{
-      overflow-y: auto;
-    }
-  }
-
-  .el-form-item__content {
-    display: flex;
-    justify-content: space-between;
-  }
-  .el-form-item__content::after,
-  .el-form-item__content::before {
-    content: none;
-  }
-  .el-table__expanded-cell[class*="cell"] {
-    padding: 4px 98px 4px 70px;
   }
   .el-dialog{
     width: 20%;

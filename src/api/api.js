@@ -10,17 +10,17 @@ import tool from '../../static/package/js/tool'
 export default {
   // 登录
   login(params) {
-    return axios.post('/zhac1/account/login', params).then(res => {
-      if (res.data.code == 'SYS.200') {
+    return axios.post('/user/login', params).then(res => {
+      if (res.data.code == '200') {
         let token = tool.encAse192(res.data.data.token, 'token');
         storage.sessionSet('token', token);
+        storage.localSet('userInfo', res.data.data);
       }
       return res.data;
     })
   },
-  // 角色关联资源
-  getRelationRes() { return axios.get('/user/resources/get/tree').then(res => res.data) },
-
+  // 退出登陆
+  loginOut(params){ return axios.post('/user/logout', params).then(res => res.data)},
 
   // 获取 机构/区域
   getRegion(params) { return axios.get('/user/geo/get/list', {params: params}).then(res => res.data) },
@@ -46,6 +46,8 @@ export default {
 
   // 获取 角色
   getRole(params) { return axios.get('/user/role/get/role/list', {params: params}).then(res => res.data) },
+  // 获取 角色 资源菜单 (tree)
+  getRoleTree(params) { return axios.get('/user/role/find/role', {params: params}).then(res => res.data) },
   // 新增 角色
   addRole(params) { return axios.post('/user/role/insert/role', params).then(res => res.data) },
   // 编辑 角色
@@ -58,7 +60,7 @@ export default {
 
   // 获取 用户
   getUser(params) { return axios.get('/user/get/list', {params: params}).then(res => res.data) },
-  // 获取 角色info (编辑时,数据要拿 id 去后台查, 真尼玛B垃圾...)
+  // 获取 用户info
   getUserInfo(params) { return axios.get('/user/get/user/info', {params: params}).then(res => res.data) },
   // 新增 用户
   addUser(params) { return axios.post('/user/insert/user', params).then(res => res.data) },
@@ -69,46 +71,28 @@ export default {
   
 
   // 获取 菜单
-  getMenu(params) { return axios.get('/user/resources/get/resources', {params: params}).then(res => res.data) },
+  getMenu(params) { return axios.get('/user/resources/get/tree', {params: params}).then(res => res.data) },
   // 新增 菜单
   addMenu(params) { return axios.post('/user/resources/insert/resources', params).then(res => res.data) },
   // 编辑 菜单
-  // editMenu(params) { return axios.post('/user/role/update/role', params).then(res => res.data) },
+  editMenu(params) { return axios.post('/user/resources/update/resource', params).then(res => res.data) },
   // 启用 / 禁用
-  // disabledMenu(params) { return axios.post('/user/role/update/enable', params).then(res => res.data) },
+  disabledMenu(params) { return axios.post('/user/resources/update/enable', params).then(res => res.data) },
 
-
-
-
-
+  // 获取用户菜单
+  getUserMenu(params) { return axios.post('/user/resources/menu', params).then(res => res.data) },
 
 
   // 上传
-  upLoaod(params) {
-    return axios.post('/param/web/appra/carDealerDoc/uploadFile', params, {
-      headers: {
-        "Content-Type": "multipart/form-data"
-      }
-    }).then(res => res.data)
-  },
+  // upLoaod(params) {
+  //   return axios.post('/param/web/appra/carDealerDoc/uploadFile', params, {
+  //     headers: {
+  //       "Content-Type": "multipart/form-data"
+  //     }
+  //   }).then(res => res.data)
+  // },
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -124,13 +108,7 @@ export default {
 axios.defaults.timeout = 5000;
 
 /*----------------------请求拦截----------------------*/
-// let loadinginstace;
 axios.interceptors.request.use(config => {
-
-  // element ui Loading方法
-  // loadinginstace = Loading.service({
-  //   fullscreen: true
-  // });
 
   // 参数序列化
   if (config.method === 'post' || config.method === 'put' || config.method === 'delete') {
@@ -138,15 +116,14 @@ axios.interceptors.request.use(config => {
   };
 
   // 携带 token
-  // let token = storage.sessionGet('token');
-  // if (token && config.url !== '/zhac1/account/login') {
-  //   let token = storage.sessionGet(token);
-  //   tool.decAse192(token,'token')
-  //   config.headers.token = token;
-  // }
+  let token = storage.sessionGet('token');
+  if (token && config.url !== '/user/login') {
+    token = tool.decAse192(token,'token');
+    config.headers.token = token;
+    
+  }
   return config;
 }, error => {
-  // loadinginstace.close();
   Message.error({
     message: '加载超时'
   })
@@ -154,11 +131,9 @@ axios.interceptors.request.use(config => {
 })
 
 /*----------------------响应拦截----------------------*/
-axios.interceptors.response.use(response => { // 响应成功关闭loading
-  // setTimeout(() => loadinginstace.close(), 500)
+axios.interceptors.response.use(response => {
   return response
 }, error => {
-  // loadinginstace.close()
   Message.error({
     message: error.response.data.message
   })

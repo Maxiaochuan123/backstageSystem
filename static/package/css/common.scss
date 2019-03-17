@@ -1,1 +1,7 @@
-$--back: #A6002C;
+@import './baseColor.scss';
+@for $i from 1 to 9 {
+  .custome-#{nth($colorValue, $i)}{
+    color: nth($colors, $i) !important;
+    background-color: nth($colors, $i) !important;
+  }
+}

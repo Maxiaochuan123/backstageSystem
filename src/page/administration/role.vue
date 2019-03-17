@@ -1,6 +1,6 @@
 <template>
 <!-- 角色管理 -->
-  <div class="role">
+  <div class="role mainBox">
     <!-- 操作栏 -->
     <div class="actionBar">
       <el-row class="row">
@@ -79,7 +79,7 @@
         <el-table-column prop="description" label="角色描述"></el-table-column>
         <el-table-column prop="status" label="状态">
           <template slot-scope="scope">
-            <span :class="switchStatu(scope.row.isEnable, 'enable','prohibit')">{{scope.row.isEnable == 0 ? '禁用' : '启用'}}</span>
+            <span :class="switchStatu(scope.row.isEnable, 'prohibit','enable')">{{scope.row.isEnable == 0 ? '启用' : '禁用'}}</span>
           </template>
         </el-table-column>
 
@@ -90,10 +90,10 @@
             <el-button type="text" icon="el-icon-edit" size="mini" @click="showDialog(scope.row,'编辑')">编辑</el-button>
             <el-button
               type="text" size="mini"
-              :icon="switchStatu(scope.row.isEnable, 'el-icon-close', 'el-icon-check')"
-              :class="switchStatu(scope.row.isEnable, 'prohibit','enable')"
+              :icon="switchStatu(scope.row.isEnable, 'el-icon-check', 'el-icon-close')"
+              :class="switchStatu(scope.row.isEnable, 'enable','prohibit')"
               @click="enableDisabled(scope.row)"
-            >{{switchStatu(scope.row.isEnable, '禁用', '启用') }}</el-button>
+            >{{switchStatu(scope.row.isEnable, '启用', '禁用') }}</el-button>
             <el-button type="text" class="danger" icon="el-icon-delete" size="mini" @click="deletItem(scope.row)">删除</el-button>
           </template>
         </el-table-column>
@@ -109,7 +109,7 @@
         :page-sizes="[15, 20, 30, 40]"
         :page-size="paging.req.pageSize"
         layout="total, sizes, prev, pager, next, jumper"
-        :total="paging.totalPage">
+        :total="paging.totalCount">
       </el-pagination>
     </div>
   </div>
@@ -129,41 +129,11 @@ export default {
       defaultProps: {
         children: 'children',
         label: 'name',
-        disabled: () => this.isSee ? true : false
+        // disabled: () => {
+        //   return this.isSee ? true : false
+        // }
       },
-      // relationResList2:[{
-      //   id:1,
-      //   name:'用户关联',
-      //   parentId:0,
-      //   children:[{
-      //     id:2,
-      //     name:'用户列表',
-      //     parentId:1,
-      //     children:[{
-      //       id:4,
-      //       name:'查看',
-      //       parentId:2,
-      //     },{
-      //       id:5,
-      //       name:'修改',
-      //       parentId:2,
-      //     }]
-      //   },{
-      //     id:3,
-      //     name:'用户列表2',
-      //     parentId:1,
-      //     children:[{
-      //       id:6,
-      //       name:'查看',
-      //       parentId:3,
-      //     },{
-      //       id:7,
-      //       name:'修改',
-      //       parentId:3,
-      //     }]
-      //   }]
-      // }],
-
+      // arrList:[23,24,25,26,28,29,30,31,32],
       // 表单
       ruleForm:{
         roleName:"", //角色名称
@@ -171,8 +141,8 @@ export default {
         description:"", //角色描述
         belongsSystem:"", //所属系统
         roleType:"", //角色类型
-        resourcesId: [], //角色权限(前端使用)
-        reqResourcesId: [] //角色权限(后端使用)
+        locResourcesId: [], //角色权限(前端使用)
+        resourcesId: [] //角色权限(后端使用)
       },
       // 验证
       rules:{
@@ -191,6 +161,7 @@ export default {
   },
   created() { 
     this.apiMethod.getRole(this);
+    // this.getRelationRes();
   },
   computed:{
     ...mapState(['relationResList'])
@@ -199,7 +170,8 @@ export default {
   methods: {
     // 禁用 / 启用
     enableDisabled(scope) {
-      this.apiMethod.disabledRole(this, scope)
+      this.apiMethod.disabledRole(this, scope);
+      setTimeout(()=>{this.getRole()},500);
     },
 
     // 显示对话框
@@ -207,7 +179,9 @@ export default {
       this.dialogStatus = true;
       this.dialogText = title;
       this.treeStatus = true;
-      this.defaultExpansion = [1] //默认只展示第一级
+      this.defaultExpansion = [0] //默认只展示第一级
+      
+      let locResId = []; // 反显时字符串 拼接成 数组
 
       this.$nextTick(()=>{
         this.isEdit = false;
@@ -221,24 +195,43 @@ export default {
           this.isEdit = true;
           this.isSee = true;
 
-          this.ruleForm = {...scope};
-          this.$nextTick(()=>{
-            this.defaultExpansion = scope.resourcesId;
-            // this.$refs.tree.setCheckedKeys(scope.resourcesId);
-          })
+          this.getRelationResList(scope, locResId);
 
         }else if(title == '编辑'){
           this.isEdit = true;
           this.isSee = false;
 
-          this.ruleForm = {...scope};
-          this.$nextTick(()=>{
-            this.defaultExpansion = scope.resourcesId;
-            // this.$refs.tree.setCheckedKeys(scope.resourcesId);
-            // this.filterTempDefExp = scope.resourcesId;
-          })
+          this.getRelationResList(scope, locResId);
         }
       });
+    },
+
+    // Id查询角色 tree
+    getRelationResList(scope, locResId){
+      this.api.getRoleTree({roleId:scope.id}).then(res=>{
+        if(res.code == '200'){
+          this.ruleForm = {...res.data};
+          // locResId = [];
+          // let locResIdData = res.data.resources;
+          // locResIdData.forEach((item)=>{
+          //   locResId.push(item.id)
+          // })
+          let locResourcesId = res.data.locResourcesId;
+              locResourcesId = locResourcesId.split(',');
+          this.$nextTick(()=>{
+            // console.log(this.arrList)
+            this.defaultExpansion = locResourcesId;
+            this.$refs.tree.setCheckedKeys(locResourcesId);
+            // this.defaultExpansion = this.arrList;
+            // this.$refs.tree.setCheckedKeys(this.arrList);
+            
+          })
+        }else{
+          setTimeout(()=>{ this.$message.error('角色关联资源加载失败'); },500);
+        }
+      }).catch(err=>{
+        this.$message.error('角色关联资源加载失败');
+      })
     },
 
     //提交
@@ -246,27 +239,28 @@ export default {
       this.$refs['ruleForm'].validate((valid) => {
         if (valid) {
           // 设置 tree 选中项 id
-          this.ruleForm.resourcesId = this.$refs.tree.getCheckedKeys();
-          this.ruleForm.reqResourcesId = [
-            ...this.$refs.tree.getHalfCheckedKeys(),
-            ...this.$refs.tree.getCheckedKeys()
+          this.ruleForm.locResourcesId = this.$refs.tree.getCheckedKeys();
+          this.ruleForm.resourcesId = [
+            ...this.$refs.tree.getCheckedKeys(),
+            ...this.$refs.tree.getHalfCheckedKeys()
           ]
-          this.ruleForm.resourcesId = JSON.stringify(this.ruleForm.resourcesId);
-          this.ruleForm.reqResourcesId = JSON.stringify(this.ruleForm.reqResourcesId);
+          this.ruleForm.locResourcesId = this.ruleForm.locResourcesId.join(",");
+          this.ruleForm.resourcesId = this.ruleForm.resourcesId.join(",");
 
-          delete this.ruleForm.createdStamp;
+          delete this.ruleForm.createdStamp; delete this.ruleForm.resources; delete this.ruleForm.lastUpdatedStamp; delete this.ruleForm.isEnable;
+          delete this.ruleForm.isDelete; delete this.ruleForm.belongsSystem; 
           
-          if(this.ruleForm.resourcesId.length <= 0){
+          if(this.ruleForm.locResourcesId.length <= 0){
             this.$message.error('请选择权限');
           }else{
             if(this.dialogText == '新增'){
-              this.ruleForm.resourcesId = JSON.stringify(this.ruleForm.resourcesId);
+              delete this.ruleForm.id;
               this.apiMethod.addRole(this);
+              setTimeout(()=>{this.getRole()},500);
             }else if(this.dialogText == '编辑'){
-              delete this.ruleForm.belongsSystem; delete this.ruleForm.enname; delete this.ruleForm.roleType; delete this.ruleForm.description;
-              
-              console.log(this.ruleForm)
-              // this.apiMethod.editRole(this);
+              delete this.ruleForm.belongsSystem; delete this.ruleForm.enname; delete this.ruleForm.roleType;
+              this.apiMethod.editRole(this);
+              setTimeout(()=>{this.getRole()},500);
             }
           }
 
@@ -290,24 +284,7 @@ export default {
 </script>
 <style lang="scss">
 .role {
-  height: calc(100vh - 72px);
-
   .actionBar {
-    width: 100%;
-    height: 44px;
-    background-color: #fff;
-    margin-bottom: 6px;
-    box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.1);
-    .row {
-      padding-top: 6px;
-    }
-    .el-input, .el-select{
-      width: 100%;
-    }
-    .addBtn{
-      position: absolute;
-      right: 10px;
-    }
     .el-input{
       width: 100%;
     }
@@ -329,44 +306,10 @@ export default {
   }
 
   .content{
-    overflow-y: none;
-    height: calc(100vh - 164px);
-    background-color: #fff;
-    .prohibit {
-      color: #f56c6c;
-    }
-    .enable {
-      color: #67c23a;
-    }
-    .danger{
-      color: #ff0000;
-    }
-  }
-
-  .paging{
-    width: 100%;
-    padding: 4px;
-    background-color: #fff;
-    display: flex;
-    flex-direction: row-reverse;
-    .el-pagination{
-      min-width: 23%;
-      margin-right: 10px;
-    }
-    .el-pagination__jump{
-      margin-left: 0px;
-    }
-  }
-
-  .el-form-item__content::after,
-  .el-form-item__content::before {
-    content: none;
-  }
-  .el-table__expanded-cell[class*="cell"] {
-    padding: 4px 98px 4px 70px;
+    height: calc(100% - 70px - 40px)!important;
   }
   .el-dialog{
-    width: 36%;
+    width: 36% !important;
   }
   .el-tree{
     margin-top: 8px;

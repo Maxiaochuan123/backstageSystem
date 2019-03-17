@@ -18,6 +18,14 @@ export default {
     // return y + '-' + m + '-' + d + ' ' + h + ':' + minute + ':' + second; 带时分秒
     return y + '-' + m + '-' + d;
   },
+  
+  // 换肤添加class函数
+  toggleClass(element, className) {
+    if (!element || !className) {
+      return
+    }
+    element.className = className
+  },
 
   /**
    * @Excel 导出

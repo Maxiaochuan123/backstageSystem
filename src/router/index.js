@@ -19,12 +19,15 @@ const User = () => import("../page/administration/user"); //用户管理
 // keepAlive:true
 // permission 菜单访问权限
 // privilege 按钮操作权限
-
+// let base = '/user_html';
 const router = new Router({
+  // mode: 'history',
+  // base: '/user_html',
+  
   routes: [
     {
-      path: "/",
-      redirect: "/welcome",
+      path: '/',
+      redirect: "welcome",
       name: "Home",
       component: Home,
       meta: {
@@ -32,7 +35,7 @@ const router = new Router({
       },
       children: [
         {
-          path: "/welcome",
+          path: "welcome",
           name: "Welcome",
           component: Welcome,
           meta: {
@@ -97,17 +100,17 @@ const router = new Router({
     }
   ]
 });
-// router.beforeEach((to, from, next) => {
-//   if (sessionStorage.getItem("token")) {
-//     next();
-//   } else {
-//     if (to.path == "/login") {
-//       //多判断一次路径 避免 死循环
-//       next();
-//     } else {
-//       next("/login");
-//     }
-//   }
-// });
+router.beforeEach((to, from, next) => {
+  if (sessionStorage.getItem("token")) {
+    next();
+  } else {
+    if (to.path == "/login") {
+      //多判断一次路径 避免 死循环
+      next();
+    } else {
+      next("/login");
+    }
+  }
+});
 
 export default router;

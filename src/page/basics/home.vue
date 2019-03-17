@@ -1,13 +1,16 @@
 <template>
   <div id="home">
     <el-container>
+
       <el-header>
         <Header></Header>
       </el-header>
+
       <el-container>
         <Aside></Aside>
         <Main></Main>
       </el-container>
+      
     </el-container>
   </div>
 </template>
@@ -25,3 +28,4 @@ export default {
   }
 };
 </script>
+

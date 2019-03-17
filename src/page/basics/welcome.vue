@@ -24,6 +24,7 @@ export default {
 <style lang="scss">
 .welcome {
   height: calc(100vh - 72px);
+  // height: 100vh;
   background-color: #fff;
   display: flex;
   justify-content: center;

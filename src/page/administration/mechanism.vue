@@ -1,41 +1,51 @@
 <template>
 <!-- 机构管理 -->
-  <div class="mechanism">
-    <!-- 对话框 -->
-    <el-dialog :title="btnText == '新增'? `新增${dialogText}` : `编辑${editText}`" :visible.sync="dialogStatus" @close="closeDialog">
-      <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
-        <el-form-item label="上级名称:" prop="superiorName" v-if="isJt">
-          <el-input v-model="superiorName" disabled></el-input>
-        </el-form-item>
-        <el-form-item label="名称:" prop="groupName">
-          <el-input v-model="ruleForm.groupName" placeholder="请输入名称" clearable></el-input>
-        </el-form-item>
-        <el-form-item label="机构属性:" prop="typeText" v-if="isDq">
-          <el-input v-model="typeText" disabled></el-input>
-        </el-form-item>
-        <el-form-item label="所属区域:" prop="geoId" v-if="isBm && isJt && isDq">
-          <el-select v-model="ruleForm.geoId" placeholder="请选择所属区域" clearable>
-            <el-option :label="item.label" :value="item.value" v-for="(item,index) in largeAreaList" :key="index"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="描述:" prop="description">
-          <el-input v-model="ruleForm.description" type="textarea" :rows="2"></el-input>
-        </el-form-item>
-      </el-form>
+  <div class="mechanism mainBox">
+    <!-- 操作栏 -->
+    <div class="actionBar">
+      <el-row class="row">
+        <el-col :span="2" :offset="22">
+          <!-- 新增 -->
+          <el-button type="primary" icon="el-icon-plus" class="addBtn" size="small"  @click="showDialog('','新增')">新增机构</el-button>
 
-      <div slot="footer" class="dialog-footer">
-        <el-button size="mini" @click="closeDialog">取 消</el-button>
-        <el-button type="primary" size="mini" :loading="btnLoading" @click="submit">提 交</el-button>
-      </div>
-    </el-dialog>
+          <!-- 对话框 -->
+          <el-dialog :title="btnText == '新增'? `新增${dialogText}` : `编辑${editText}`" :visible.sync="dialogStatus" @close="closeDialog">
+            <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
+              <el-form-item label="上级名称:" prop="superiorName" v-if="isJt">
+                <el-input v-model="superiorName" disabled></el-input>
+              </el-form-item>
+              <el-form-item label="名称:" prop="groupName">
+                <el-input v-model="ruleForm.groupName" placeholder="请输入名称" clearable></el-input>
+              </el-form-item>
+              <el-form-item label="机构属性:" prop="typeText" v-if="isDq">
+                <el-input v-model="typeText" disabled></el-input>
+              </el-form-item>
+              <el-form-item label="所属区域:" prop="geoId" v-if="isBm && isJt && isDq">
+                <el-select v-model="ruleForm.geoId" placeholder="请选择所属区域" clearable>
+                  <el-option :label="item.label" :value="item.value" :disabled="item.isEnable == 1"  v-for="(item,index) in  dialogText == '机构' || dialogText == '部门' ? companyList : largeAreaList" :key="index"></el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item label="描述:" prop="description">
+                <el-input v-model="ruleForm.description" type="textarea" :rows="2"></el-input>
+              </el-form-item>
+            </el-form>
+
+            <div slot="footer" class="dialog-footer">
+              <el-button size="mini" @click="closeDialog">取 消</el-button>
+              <el-button type="primary" size="mini" :loading="btnLoading" @click="submit">提 交</el-button>
+            </div>
+          </el-dialog>
+        </el-col>
+      </el-row>
+    </div>
 
     <!-- 表格 -->
     <div class="content">
-      <tableTree :data="tableData" border stripe v-loading="tableLoading">
+      <tableTree :data="tableData" border v-loading="tableLoading">
         <el-table-column prop="groupName" label="名称"></el-table-column>
         <el-table-column prop="isEnable" label="状态">
           <template slot-scope="scope">
-            <span :class="switchStatu(scope.row.isEnable, 'isEnable','prohibit')">{{scope.row.isEnable == 0 ? '禁用' : '启用'}}</span>
+            <span :class="switchStatu(scope.row.isEnable, 'prohibit','isEnable')">{{scope.row.isEnable == 0 ? '启用' : '禁用'}}</span>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="270">
@@ -46,28 +56,15 @@
             <el-button type="text" icon="el-icon-edit" size="mini" @click="showDialog(scope.row,'编辑')">编辑</el-button>
             <el-button
               type="text" size="mini"
-              :icon="switchStatu(scope.row.isEnable, 'el-icon-close', 'el-icon-check')"
-              :class="switchStatu(scope.row.isEnable, 'prohibit','isEnable')"
+              :icon="switchStatu(scope.row.isEnable, 'el-icon-check', 'el-icon-close')"
+              :class="switchStatu(scope.row.isEnable, 'isEnable','prohibit')"
               @click="enableDisabled(scope.row)"
-            >{{switchStatu(scope.row.isEnable, '禁用', '启用') }}</el-button>
+            >{{switchStatu(scope.row.isEnable, '启用', '禁用') }}</el-button>
             <el-button type="text" class="danger" icon="el-icon-delete" size="mini" @click="deletItem(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </tableTree>
     </div>
-    <!-- 分页 -->
-    <!-- <div class="paging">
-      <el-pagination
-        background
-        @size-change="sizeChange"
-        @current-change="currentChange"
-        :current-page="paging.req.pageIndex"
-        :page-sizes="[15, 20, 30, 40]"
-        :page-size="paging.req.pageSize"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="paging.totalPage">
-      </el-pagination>
-    </div> -->
   </div>
 </template>
 
@@ -117,7 +114,7 @@ export default {
     this.apiMethod.getMechanism(this);
   },
   computed: {
-    ...mapState(['largeAreaList']),
+    ...mapState(['largeAreaList', 'companyList']),
 
     // 组织类型(0:集团，1:机构，2:部门，3:大区)
     attrText(){
@@ -171,7 +168,7 @@ export default {
         }
       }
     },
-    attrNum(){
+    attrText4(){
       return (type)=>{
         switch (type) {
           case 0:
@@ -191,25 +188,20 @@ export default {
   methods: {
     // 禁用 / 启用
     enableDisabled(scope) {
-      // scope.isEnable = scope.isEnable == 1 ? 0 : 1;
-      this.apiMethod.disabledMechanism(this, scope)
-      // if(scope.children){
-      //   this.recursion(scope.children, scope);
-      // }
+      let isEnable = scope.parent ? scope.parent.isEnable : '';
+      if(isEnable == 1){
+        this.$message.warning('父级禁用状态下, 子级不可修改状态!')
+      }else{
+        this.apiMethod.disabledMechanism(this, scope);
+        setTimeout(()=>{this.getMechanism()},500);
+      }
     },
-    // recursion(scopeChildren, scope){
-    //   scopeChildren.forEach(item => {
-    //     item.isEnable = scope.isEnable == 1 ? 1 : 0;
-    //     if(item.children){
-    //       this.recursion(item.children, scope);
-    //     }
-    //   })
-    // },
 
     // 显示对话框
     showDialog(scope, btnText){
+      
       this.dialogStatus = true;
-      this.dialogText = this.attrText(scope.type);
+      this.dialogText = this.attrText(scope.type) || '机构';
       this.editText = this.attrText2(scope.type);
       this.btnText = btnText;
 
@@ -217,22 +209,31 @@ export default {
         if(btnText == '编辑'){
           this.ruleForm = {...scope}
           this.typeText = this.attrText2(scope.type);
-          this.superiorName = scope.parent ? scope.parent.groupName : '';
+          this.superiorName = scope.parent ? scope.parent.groupName : '众汇车服集团';
           this.isBm = scope.type == 2 ? false : true;
           this.isJt = scope.type == 0 ? false : true;
           this.isDq = scope.type == 3 ? false : true;
-          // console.log(this.ruleForm)
 
-        }else if(btnText == '新增'){
-          this.superiorName = scope.groupName;
-          this.ruleForm.type = this.attrNum(scope.type);
-          this.typeText = this.attrText(scope.type);
-          this.ruleForm.parentId = scope.parentId == 0 ? 1 : scope.parentId;
+        }else if(btnText == '新增' && this.dialogText == '机构'){
+          this.superiorName = '众汇车服集团';
+          this.ruleForm.type = 1;
+          this.typeText = '机构';
+          this.ruleForm.parentId = 0;
 
           this.isBm = scope.type == 1 ? false : true;
           this.isJt = true;
           this.isDq = true;
-          console.log('scope:',scope)
+          
+          
+        }else if(btnText == '新增' && (this.dialogText == '部门' || this.dialogText == '大区')){
+          this.superiorName = scope.groupName;
+          this.ruleForm.type = this.attrText4(scope.type);
+          this.typeText = this.attrText(scope.type);
+          this.ruleForm.parentId = scope.id;
+
+          this.isBm = scope.type == 1 ? false : true;
+          this.isJt = true;
+          this.isDq = true;
         }
       });
 
@@ -262,16 +263,11 @@ export default {
 
           if(this.btnText == '编辑'){
             this.apiMethod.editMechanism(this);
+            setTimeout(()=>{this.getMechanism()},500);
           }else{
             this.apiMethod.addMechanism(this);
+            setTimeout(()=>{this.getMechanism()},500);
           }
-
-          // this.btnLoading = true;
-          // setTimeout(()=>{
-          //   this.btnLoading = false;
-          //   this.resetFn();
-          // },1000);
-
         } else {
           return false;
         }
@@ -281,68 +277,18 @@ export default {
     // 删除
     deletItem(scope){
       this.apiMethod.deleteMechanism(this, scope);
-    },
-
-    // 触发分页
-    changePaging(){
-      this.apiMethod.getMechanism(this);
-    },
+    }
   }
 };
 </script>
 <style lang="scss">
 .mechanism {
-  height: calc(100vh - 72px);
-
-  .content{
-    overflow-y: none;
-    height: calc(100vh - 70px);
-    background-color: #fff;
-
-    .statusChildren{
-      margin-right: 40px;
-    }
-    .prohibit {
-      color: #f56c6c;
-    }
-    .isEnable {
-      color: #67c23a;
-    }
-    .danger{
-      color: #ff0000;
-    }
-    .el-table__body-wrapper{
-      overflow-y: auto;
+  .actionBar {
+    .el-input{
+      width: 90%;
     }
   }
 
-  // .paging{
-  //   width: 100%;
-  //   padding: 4px;
-  //   background-color: #fff;
-  //   display: flex;
-  //   flex-direction: row-reverse;
-  //   .el-pagination{
-  //     min-width: 23%;
-  //     margin-right: 10px;
-  //     z-index: 100;
-  //   }
-  //   .el-pagination__jump{
-  //     margin-left: 0px;
-  //   }
-  // }
-
-  .el-form-item__content {
-    display: flex;
-    justify-content: space-between;
-  }
-  .el-form-item__content::after,
-  .el-form-item__content::before {
-    content: none;
-  }
-  .el-table__expanded-cell[class*="cell"] {
-    padding: 4px 98px 4px 70px;
-  }
   .el-dialog{
     width: 28%;
     .el-input, .el-textarea{

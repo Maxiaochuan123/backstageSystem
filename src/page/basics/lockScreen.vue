@@ -8,7 +8,7 @@
               <div class="logo">
                 <img :src="companyLogo" alt>
               </div>
-              <div class="logoName">xxx 系统</div>
+              <div class="logoName">用户权限管理系统</div>
             </div>
 
             <div class="lockScreenForm">

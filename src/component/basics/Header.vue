@@ -1,7 +1,7 @@
 <template>
   <el-header>
     <div class="sysInfo">
-      <div class="sysIcon">
+      <div :class="['sysIcon',`custome-${themeColor.color}`]">
         <div class="sysText">
           <span>众汇车服</span>
           <span>用户权限管理系统</span>
@@ -31,7 +31,7 @@
             <img :src="headPortrait" alt="头像">
           </div>
           <div class="userName">
-            <p onselectstart="return false">马晓川</p>
+            <p onselectstart="return false">{{userInfo.name}}</p>
           </div>
         </div>
         <el-dropdown-menu slot="dropdown" style="width: 110px;">
@@ -55,6 +55,7 @@ import { mapState, mapMutations } from "vuex";
 export default {
   data() {
     return {
+      userInfo:this.storage.localGet('userInfo'),
       headPortrait: this.imagesPath.headPortrait,
       dropdownMenuList: [
         { icon: "icon-shezhi", text: "设置", disabled: false },
@@ -66,7 +67,7 @@ export default {
     };
   },
   computed: {
-    ...mapState(["isCollapse"])
+    ...mapState(["isCollapse", "themeColor"])
   },
 
   methods: {
@@ -81,9 +82,7 @@ export default {
             this.$store.commit('setupPanelClose');
           break;
         case "退出":
-            this.storage.sessionRemove('token');
-            this.$router.push("login");
-            this.$store.commit('setupPanelClose');
+            this.apiMethod.loginOut(this);
           break;
       }
     },
@@ -131,6 +130,9 @@ export default {
     box-sizing: border-box;
     // padding-left: 30px;
     display: flex;
+    // .themeColor{
+
+    // }
 
     .sysIcon {
       width: 250px;

@@ -9,7 +9,7 @@
               <div class="logo">
                 <img :src="companyLogo" alt>
               </div>
-              <div class="logoName">xxx 系统</div>
+              <div class="logoName">用户权限管理系统</div>
             </div>
 
             <div class="loginForm">
@@ -58,7 +58,7 @@
 
 <script>
 import { Swiper, Slide } from "vue-swiper-component";
-import { mapState } from "vuex";
+import { mapState, mapMutations } from "vuex";
 export default {
   components: {
     Swiper,
@@ -76,9 +76,12 @@ export default {
       rules: {
         username: { required: true, message: "请输入用户名", trigger: "blur" },
         password: { required: true, message: "请输入密码", trigger: "blur" }
-      }
+      },
+      serverName:'',
+      targetURL:''
     };
   },
+  
   computed: {
     ...mapState(["rememberPwd"]),
     rememberPwd: {
@@ -107,7 +110,20 @@ export default {
       }
     }
   },
+
+  created(){
+
+    // 获取其他 地址栏中 其他服务参数
+    let serverNameItem = this.tool.getParam('serverName');
+    let targetURLItem = this.tool.getParam('targetURL');
+
+    this.serverName = serverNameItem ? serverNameItem : null;
+    this.targetURL = targetURLItem ? this.tool.decAse192(targetURLItem,'targetURL') : null;
+  },
+  
   methods: {
+    // ...mapMutations['setMechanismList','setCompanyList','setLargeAreaList','setUserRoleList'],
+
     onSubmit() {
       this.isLogin = true;
 
@@ -117,22 +133,38 @@ export default {
 
       // 用于 welcome 页欢迎语, 区分是否第一次登陆
       let loginTag = this.storage.localGet("loginTag");
-      if (loginTag >= 0) {
-        this.storage.localSet("loginTag", ++loginTag);
-      } else {
-        this.storage.localSet("loginTag", 0);
-      }
 
+      
       this.$refs["form"].validate(valid => {
         if (valid) {
-          // this.api.login(this.form).then(res => {
-          //   if (res.code != "SYS.200") {
-              // this.$message.error(res.message);
-              setTimeout(() => (this.isLogin = false), 500);
-            // } else {
-              this.$router.push("/");
-            // }
-          // });
+          this.api.login(this.form).then(res => {
+            if (res.code == "200") {
+              // 基础处理
+              if (loginTag >= 0) {
+                this.storage.localSet("loginTag", ++loginTag);
+              } else {
+                this.storage.localSet("loginTag", 0);
+              }
+
+              // 其他服务登陆处理
+              if(this.serverName && this.targetURL){
+                window.location.href = this.targetURL;
+              }else{
+                this.$router.push("/");
+                this.getMechanism();
+                this.getRegion();
+                this.getRelationRes();
+                this.getRole();
+              }
+              // http://192.168.50.229:8080/#/login?serverName=KH&targetURL=550f7b1fe7b2ce04126eef4c68ccf2b6f7433888c337e3134a1d405e0082614c
+              
+            } else {
+              this.$message.error(res.msg);
+              setTimeout(() => (this.isLogin = false), 5000);
+            }
+          });
+          // let targetURL = this.tool.encAse192('http://www.baidu.com', "targetURL");
+          // window.location.href = `http://192.168.50.229:8080/#/login?serverName=KH&targetURL=${targetURL}`
         } else {
           this.isLogin = false;
           return false;

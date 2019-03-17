@@ -22,7 +22,7 @@
 
 <script>
 import { mapMutations } from "vuex";
-import SetupPanel from "./SetupPanel";
+import SetupPanel from "./setupPanel/SetupPanel";
 export default {
   components: { SetupPanel },
   data() {
