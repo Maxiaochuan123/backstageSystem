@@ -1,13 +1,13 @@
 <template>
   <el-aside class="aside">
-    <el-menu :default-active="currentPath" class="el-menu-vertical-demo" router :default-openeds="['system']" :collapse="isCollapse">
+    <el-menu :default-active="currentPath" class="el-menu-vertical-demo" router :default-openeds="['1']" :collapse="isCollapse">
       <!-- children' in aside 如果存在 子节点才渲染  -->
       <el-submenu index="1" v-if="aside.children.length > 0" v-for="(aside, i) in asideList" :key="i">
         <template slot="title">
           <i :class="aside.icon"></i>
           <span slot="title">{{aside.name}}</span>
         </template>
-
+        
         <!-- 二级菜单 -->
         <div v-for="(aside_2, i2) in aside.children" :key="i2">
           <!-- <el-submenu index="2" v-if="aside_2.children.length > 0">
@@ -20,59 +20,37 @@
         </div>
       </el-submenu>
       <!--不存在 子节点 直接渲染  -->
-      <el-menu-item :index="aside.url" v-else>{{aside.name}}</el-menu-item>
+      <el-menu-item :index="aside.url" v-else>
+        <i :class="aside.icon"></i>
+        <span slot="title">{{aside.name}}</span>
+      </el-menu-item>
     </el-menu>
   </el-aside>
 </template>
 
 <script>
-import { mapState, mapMutations } from "vuex";
+import { mapState } from "vuex";
 export default {
   name: "",
   data() {
     return {
-      currentPath: this.storage.sessionGet("currentPath"),
-      // upMenu: this.storage.localGet('upMenu'),
       asideList:[
         {
-          name:'系统管理',
-          url:'system',
-          icon:'iconfont icon-shezhi',
-
-          children:[{
-            name:'区域管理',
-            url:'region',
-            icon:'iconfont icon-quyupaixu'
-          },{
-            name:'机构管理',
-            url:'mechanism',
-            icon:'iconfont icon-zuzhi'
-          },{
-            name:'角色管理',
-            url:'role',
-            icon:'iconfont icon-jiaoseguanli1'
-          },{
-            name:'用户管理',
-            url:'user',
-            icon:'iconfont icon-jiaoseguanli'
-          },{
-            name:'菜单管理',
-            url:'menu',
-            icon:'iconfont icon-caidan'
-          }]
+          name:'上传图像',
+          url:'uploadImage',
+          icon:'iconfont icon-quyupaixu',
+          children:[]
         }
       ]
     };
   },
   computed: {
-    ...mapState(["isCollapse"])
-    // , "asideList"
+    ...mapState(["isCollapse", "currentPath"])
   },
   methods: {
-
   },
   created() {
-    this.getUserMenu();
+    
   }
 };
 </script>
@@ -105,15 +83,6 @@ export default {
     height: 100%px;
   }
 }
-  ::-webkit-scrollbar {
-    /*滚动条整体样式*/
-    width: 4px; /*高宽分别对应横竖滚动条的尺寸*/
-  }
-  ::-webkit-scrollbar-thumb {
-    /*滚动条里面小方块*/
-    border-radius: 10px;
-    background: #dadbe2;
-  }
 
 .el-aside {
   text-align: center;

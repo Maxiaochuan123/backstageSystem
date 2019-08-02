@@ -11,17 +11,16 @@ module.exports = {
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
     proxyTable: {
-      '/user':{
-        // target:'http://192.168.50.146:9992', //李地址
-        // target:'http://192.168.50.159:9992', //张磊地址
-        target:'http://172.16.10.20:9992', //测试地址
+      '/bi':{
+        target:'http://192.168.50.146:9995', //李地址
+        // target:'http://192.168.50.159:9995', //张地址
         changeOrigin:true
       }
     },
 
     // Various Dev Server settings
-    // host: '192.168.50.163', // can be overwritten by process.env.HOST
     host: 'localhost', // can be overwritten by process.env.HOST
+    // host: 'localhost', // can be overwritten by process.env.HOST
     port: 8080, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
     autoOpenBrowser: true,
     errorOverlay: true,
@@ -51,8 +50,8 @@ module.exports = {
     // Paths
     assetsRoot: path.resolve(__dirname, '../dist'),
     assetsSubDirectory: 'static',
-    assetsPublicPath: '/user_html/',
-    // assetsPublicPath: './',
+    // assetsPublicPath: '/bi_html/',
+    assetsPublicPath: './',
 
     /**
      * Source Maps

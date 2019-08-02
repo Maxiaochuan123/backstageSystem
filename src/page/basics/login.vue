@@ -9,7 +9,7 @@
               <div class="logo">
                 <img :src="companyLogo" alt>
               </div>
-              <div class="logoName">用户权限管理系统</div>
+              <div class="logoName">BI 商业智能系统</div>
             </div>
 
             <div class="loginForm">
@@ -122,8 +122,6 @@ export default {
   },
   
   methods: {
-    // ...mapMutations['setMechanismList','setCompanyList','setLargeAreaList','setUserRoleList'],
-
     onSubmit() {
       this.isLogin = true;
 
@@ -137,34 +135,32 @@ export default {
       
       this.$refs["form"].validate(valid => {
         if (valid) {
-          this.api.login(this.form).then(res => {
-            if (res.code == "200") {
-              // 基础处理
-              if (loginTag >= 0) {
-                this.storage.localSet("loginTag", ++loginTag);
-              } else {
-                this.storage.localSet("loginTag", 0);
-              }
+          // this.api.login(this.form).then(res => {
+          //   if (res.code == "200") {
+          //     // 基础处理
+          //     if (loginTag >= 0) {
+          //       this.storage.localSet("loginTag", ++loginTag);
+          //     } else {
+          //       this.storage.localSet("loginTag", 0);
+          //     }
 
-              // 其他服务登陆处理
-              if(this.serverName && this.targetURL){
-                window.location.href = this.targetURL;
-              }else{
-                this.$router.push("/");
-                this.getMechanism();
-                this.getRegion();
-                this.getRelationRes();
-                this.getRole();
-              }
-              // http://192.168.50.229:8080/#/login?serverName=KH&targetURL=550f7b1fe7b2ce04126eef4c68ccf2b6f7433888c337e3134a1d405e0082614c
+          //     // 其他服务登陆处理
+          //     if(this.serverName && this.targetURL){
+          //       window.location.href = this.targetURL;
+          //     }else{
+          //       this.$router.push("/");
+          //       this.getMechanism();
+          //       this.getRegion();
+          //       this.getRelationRes();
+          //       this.getRole();
+          //     }
               
-            } else {
-              this.$message.error(res.msg);
-              setTimeout(() => (this.isLogin = false), 5000);
-            }
-          });
-          // let targetURL = this.tool.encAse192('http://www.baidu.com', "targetURL");
-          // window.location.href = `http://192.168.50.229:8080/#/login?serverName=KH&targetURL=${targetURL}`
+          //   } else {
+          //     this.$message.error(res.msg);
+          //     setTimeout(() => (this.isLogin = false), 5000);
+          //   }
+          // });
+          this.$router.push("/");
         } else {
           this.isLogin = false;
           return false;

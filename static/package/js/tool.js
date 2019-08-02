@@ -33,7 +33,7 @@ export default {
    * @param name string excel表名
    * @param that object 上下文
    * */
-  downloadExcel: function (data, name, that) {
+  downloadExcel(that, data, name) {
     if (!data) {
       return
     }

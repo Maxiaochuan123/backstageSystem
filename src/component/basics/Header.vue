@@ -3,20 +3,16 @@
     <div class="sysInfo">
       <div :class="['sysIcon',`custome-${themeColor.color}`]">
         <div class="sysText">
-          <span>众汇车服</span>
-          <span>用户权限管理系统</span>
+          <span>*******</span>
+          <span>** *******</span>
         </div>
       </div>
       <div class="navMenuBtn" @click="$store.commit('collapseChange')">
         <i :class="isCollapse ? 'iconfont icon-zhankai' : 'iconfont icon-shouqi'"></i>
       </div>
-      <div class="switchPage">
-        <el-breadcrumb separator="/">
-          <el-breadcrumb-item v-for="(item, index) in currentBreadcrumb" :key="index">
-            <router-link :to="item.path">{{item.meta.title}}</router-link>
-          </el-breadcrumb-item>
-        </el-breadcrumb>
-      </div>
+
+      <!-- tabs -->
+      <Tabs></Tabs>
     </div>
 
 
@@ -31,7 +27,7 @@
             <img :src="headPortrait" alt="头像">
           </div>
           <div class="userName">
-            <p onselectstart="return false">{{userInfo.name}}</p>
+            <!-- <p onselectstart="return false">{{userInfo.name}}</p> -->
           </div>
         </div>
         <el-dropdown-menu slot="dropdown" style="width: 110px;">
@@ -51,11 +47,12 @@
 </template>
 
 <script>
+import Tabs from '../basics/tabs/index';
 import { mapState, mapMutations } from "vuex";
 export default {
   data() {
     return {
-      userInfo:this.storage.localGet('userInfo'),
+      // userInfo:this.storage.sessionGet('userInfo'),
       headPortrait: this.imagesPath.headPortrait,
       dropdownMenuList: [
         { icon: "icon-shezhi", text: "设置", disabled: false },
@@ -63,8 +60,10 @@ export default {
         { icon: "icon-tuichu", text: "退出", disabled: false }
       ],
       isfullScreen: false,
-      currentBreadcrumb: this.storage.sessionGet("currentBreadcrumb") || []
     };
+  },
+  components: {
+    Tabs
   },
   computed: {
     ...mapState(["isCollapse", "themeColor"])
@@ -82,6 +81,8 @@ export default {
             this.$store.commit('setupPanelClose');
           break;
         case "退出":
+            this.$store.state.currentPath = '';
+            this.$store.state.tabsMenuList = [];
             this.apiMethod.loginOut(this);
           break;
       }
@@ -90,24 +91,15 @@ export default {
       this.tool.fullScreen(this);
     },
 
-    getBreadcrumb() {
-      let currentBreadcrumbList = this.$route.matched.map(item => {
-        if (item.name == "Home") {
-          item.path = "/";
-        }
-        return { meta: item.meta, path: item.path };
-      });
-      // 设置面包屑 菜单,防止刷新丢失
-      this.storage.sessionSet("currentBreadcrumb", currentBreadcrumbList);
-      this.currentBreadcrumb = this.storage.sessionGet("currentBreadcrumb");
-
+    getTabsList() {
       // 设置当前点击的 菜单,防止刷新丢失
+      this.$store.commit('currentPathAdd', this.$route.name);
       this.storage.sessionSet("currentPath", this.$route.name);
     },
   },
   watch: {
     $route(to, from) {
-      this.getBreadcrumb();
+      this.getTabsList();
     }
   }
 };
@@ -124,8 +116,25 @@ export default {
   z-index: 20;
   box-shadow: 0px -1px 6px 0px rgba(0, 0, 0, 0.1);
 
+  .tabs{
+    background-color: #fff;
+    .el-tabs__header{
+      margin: 0;
+    }
+    .el-tabs--card>.el-tabs__header{
+      border: none;
+      .el-tabs__nav{
+        border: none;
+      }
+    }
+    .el-tabs__item{
+      height: 34px;
+      line-height: 34px;
+    }
+  }
+
   .sysInfo {
-    width: 432px;
+    // width: 432px;
     height: 100%;
     box-sizing: border-box;
     // padding-left: 30px;
