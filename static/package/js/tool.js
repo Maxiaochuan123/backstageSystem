@@ -1,6 +1,5 @@
 // node 加密模块
 var crypto = require('crypto');
-
 export default {
   formatDate(date) {
     var date = new Date(date);
@@ -17,6 +16,22 @@ export default {
     second = second < 10 ? ('0' + second) : second;
     // return y + '-' + m + '-' + d + ' ' + h + ':' + minute + ':' + second; 带时分秒
     return y + '-' + m + '-' + d;
+  },
+
+  // 防抖
+  debounce(fn, t){
+    let delay = t || 500;
+    let timer;
+    return function () {
+      let args = arguments;
+      if(timer){
+          clearTimeout(timer);
+      }
+      timer = setTimeout(() => {
+          timer = null;
+          fn.apply(this, args);
+      }, delay);
+    }
   },
   
   // 换肤添加class函数
