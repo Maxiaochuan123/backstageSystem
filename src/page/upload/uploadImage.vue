@@ -10,7 +10,6 @@
               <i class="el-icon-delete" @click="deleteImageItem(item.imgName)"></i>
             </div>
             <img :src="item.src" :alt="item.imgName">
-            <img :src="item.src" :alt="item.imgName">
           </li>
         </ul>
       </div>
